@@ -219,26 +219,12 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  /* 计税方式对比格 */
-  .summary-grid .item.compare .v {
-    font-size: 12px;
-    font-weight: 500;
-  }
-  .summary-grid .item.compare .t {
-    font-size: 10px;
-    margin-top: 3px;
-    padding: 2px 4px;
-    border-radius: 4px;
-    background: rgba(255,255,255,.2);
-    opacity: 1;
-  }
+  /* 计税方式对比格：数字在上（和普通格一致），标签在下显示计税方式 */
   .summary-grid .item.compare.clickable {
     cursor: pointer;
   }
-  .summary-grid .item.compare.clickable .t {
-    background: #FFB020;
-    color: #fff;
-    font-weight: 600;
+  .summary-grid .item.compare.clickable .v {
+    color: #FFE082;   /* 可切换时数字变成黄色，吸引注意 */
   }
   .summary-grid .item.compare.clickable:active {
     opacity: .7;
@@ -542,7 +528,7 @@ function render(r) {
   const items = [
     // 第一排：总收入 → 实得 → 税 → 个人公积金
     ['税前年薪',   r.annualGross],
-    ['实得年薪',   realIncome],
+    ['含公积金年薪',   realIncome],
     ['年度缴税',   r.annualTax],
     ['个人公积金', r.ann.housingFund],
     // 第二排：五险一金（个人承担）
@@ -579,20 +565,20 @@ function render(r) {
     // 对比格：可点击切换计税方式
     if (it && it.compare) {
       const absDiff = Math.abs(it.diff);
-      let tip;
+      let topValue;      // 上方：差值数字
       if (absDiff < 1) {
-        tip = '两种方式相同';
+        topValue = '等同';
       } else if (it.diff > 0) {
         // 当前方式比另一种多拿 → 当前更划算
-        tip = `已省 ${fmt(absDiff)}`;
+        topValue = `省 ${fmt(absDiff)}`;
       } else {
-        // 另一种更划算
-        tip = `切换可多 ${fmt(absDiff)}`;
+        // 另一种更划算 → 点一下切换
+        topValue = `差 ${fmt(absDiff)}`;
       }
       const clickable = absDiff >= 1 && it.diff < 0;
       return `<div class="item compare ${clickable ? 'clickable' : ''}" data-other="${it.otherMode}">
-        <div class="v">${it.currentLabel}</div>
-        <div class="t">${tip}</div>
+        <div class="v">${topValue}</div>
+        <div class="t">${it.currentLabel}</div>
       </div>`;
     }
     const [t, v] = it;
