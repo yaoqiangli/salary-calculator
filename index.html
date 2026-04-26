@@ -560,7 +560,7 @@
       <label>年终奖（元，可选）</label>
       <div class="input-row">
         <span class="prefix">¥</span>
-        <input type="text" inputmode="decimal" id="bonus" value="0" autocomplete="off">
+        <input type="text" inputmode="decimal" id="bonus" value="180000" autocomplete="off">
       </div>
     </div>
   </div>
@@ -1119,7 +1119,8 @@ function saveAndRecalc() {
 }
 
 // 年终奖倍数（null 表示自由输入模式，数字表示 "= 月薪 × N"）
-let bonusMultiplier = null;
+// 默认 3 月薪，首次打开时月薪变化自动跟随
+let bonusMultiplier = 3;
 const $bonusQuick = document.getElementById('bonusQuick');
 
 function updateBonusFromMultiplier() {
@@ -1153,7 +1154,9 @@ try {
     }
     if (typeof saved.bonusMultiplier === 'number') {
       bonusMultiplier = saved.bonusMultiplier;
-      highlightQuickButton();
+    } else if ('bonusMultiplier' in saved) {
+      // localStorage 里明确存了 null（用户手动输入过年终奖），尊重它
+      bonusMultiplier = null;
     }
     if (saved.bonusMode) {
       bonusMode = saved.bonusMode;
@@ -1161,6 +1164,8 @@ try {
         b.classList.toggle('active', b.dataset.v === bonusMode));
     }
   }
+  // 初始高亮对应倍数按钮（默认 3 月薪）
+  highlightQuickButton();
   // 恢复后重新加千分位（因为 value 被覆盖）
   [$salary, $bonus, $socialBase, $hfBase].forEach($el => {
     if ($el.value && !$el.classList.contains('auto-value')) {
