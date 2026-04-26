@@ -18,11 +18,12 @@
     color: #222;
     -webkit-font-smoothing: antialiased;
   }
-  /* 顶部渐变区 */
+  /* 顶部标题（独立，只负责标题） */
   .hero {
     background: linear-gradient(135deg, #3B8CF5 0%, #66B3FF 100%);
     color: #fff;
-    padding: calc(env(safe-area-inset-top, 0) + 24px) 20px 16px;
+    padding: calc(env(safe-area-inset-top, 0) + 22px) 20px 20px;
+    text-align: center;
   }
   .hero h1 {
     margin: 0 0 4px;
@@ -32,67 +33,132 @@
   }
   .hero .sub {
     font-size: 12px;
-    opacity: .85;
-    margin-bottom: 20px;
+    opacity: .88;
   }
+
+  /* 输入卡片（白底，独立卡片） */
+  .input-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px 16px 18px;
+    margin: -12px 16px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 统一块间距：所有"输入块"之间都是 18px */
+  .input-card > .field,
+  .input-card > .field-pair,
+  .input-card > .quick-row {
+    margin-bottom: 18px;
+  }
+  .input-card > *:last-child {
+    margin-bottom: 0;
+  }
+
   .field {
-    margin-bottom: 16px;
+    margin-bottom: 0;   /* 由上面的 > 选择器统一控制 */
   }
-  .hero .field:last-child {
+  /* 两个字段并排：内部 field 不要再加底部 margin，由 grid gap 管水平 */
+  .field-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field-pair .field {
     margin-bottom: 0;
   }
   .field label {
-    display: block;
-    font-size: 13px;
-    opacity: .9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #555;
     margin-bottom: 6px;
+    min-height: 22px;  /* 保证和带按钮的 label 等高 */
   }
   .field-hint {
     font-size: 11px;
-    opacity: .65;
+    color: #aaa;
     margin-left: 6px;
     font-weight: normal;
   }
+  .sync-btn {
+    background: #EEF3FA;
+    border: 1px solid #CFDEF3;
+    color: #3B8CF5;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .sync-btn:active { background: #DCE7F5; }
+
+  /* 输入框：浅灰边框，白底 */
   .input-row {
     display: flex;
-    align-items: baseline;
-    border-bottom: 1px solid rgba(255,255,255,.5);
-    padding-bottom: 6px;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #FAFBFC;
+    padding: 8px 12px;
+    transition: border-color .15s;
+  }
+  .input-row:focus-within {
+    border-color: #3B8CF5;
+    background: #fff;
   }
   .input-row .prefix {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 600;
-    margin-right: 8px;
+    margin-right: 6px;
+    color: #888;
   }
   .input-row input {
     flex: 1;
     background: transparent;
     border: none;
     outline: none;
-    color: #fff;
-    font-size: 22px;
+    color: #222;
+    font-size: 20px;
     font-weight: 600;
-    caret-color: #fff;
+    caret-color: #3B8CF5;
     width: 100%;
     min-width: 0;
     -webkit-appearance: none;
     appearance: none;
+    padding: 0;
   }
-  .input-row input::placeholder { color: rgba(255,255,255,.55); }
+  .input-row input::placeholder { color: #bbb; font-weight: 500; }
+  /* "自动跟随"状态：输入框为空时显示一个灰色的提示数字（由 JS 填入 value） */
+  .input-row input.auto-value {
+    color: #bbb;
+    font-weight: 500;
+  }
 
-  /* 分段选择器 */
+  .field-pair .input-row .prefix { font-size: 16px; }
+  .field-pair .input-row input { font-size: 18px; }
+  @media (max-width: 375px) {
+    .field-pair { gap: 10px; }
+    .field-pair .input-row .prefix { font-size: 14px; }
+    .field-pair .input-row input { font-size: 16px; }
+  }
+
+  /* 分段选择器（白底版） */
   .segmented {
     display: flex;
-    background: rgba(255,255,255,.2);
+    background: #F1F3F6;
     border-radius: 10px;
     padding: 3px;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
   .segmented button {
     flex: 1;
     border: none;
     background: transparent;
-    color: #fff;
+    color: #555;
     font-size: 14px;
     padding: 8px 0;
     border-radius: 8px;
@@ -102,20 +168,22 @@
     background: #fff;
     color: #3B8CF5;
     font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08);
   }
 
   .inline-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 14px;
+    font-size: 13px;
+    color: #555;
     margin-top: 4px;
   }
   .inline-row select {
-    background: rgba(255,255,255,.2);
-    color: #fff;
+    background: #F1F3F6;
+    color: #222;
     border: none;
-    font-size: 14px;
+    font-size: 13px;
     padding: 6px 10px;
     border-radius: 8px;
     -webkit-appearance: none;
@@ -124,37 +192,36 @@
   }
   .inline-row select option { color: #222; }
 
-  /* 快捷按钮组（年终奖 = 月薪 × N） */
+  /* 快捷按钮组（浅底版） */
   .quick-row {
     display: flex;
     gap: 6px;
-    margin-top: 8px;
     flex-wrap: wrap;
   }
   .quick-row button {
     flex: 1;
     min-width: 0;
-    border: 1px solid rgba(255,255,255,.5);
-    background: rgba(255,255,255,.12);
-    color: #fff;
+    border: 1px solid #e5e7eb;
+    background: #F7F8FA;
+    color: #555;
     font-size: 12px;
     padding: 7px 0;
     border-radius: 8px;
     font-family: inherit;
   }
   .quick-row button:active {
-    background: rgba(255,255,255,.35);
+    background: #EEF3FA;
   }
   .quick-row button.active {
-    background: #fff;
-    color: #3B8CF5;
+    background: #3B8CF5;
+    color: #fff;
     font-weight: 600;
-    border-color: #fff;
+    border-color: #3B8CF5;
   }
 
   /* 结果区 */
   .content {
-    padding: 16px;
+    padding: 0 16px;
     padding-bottom: calc(env(safe-area-inset-bottom, 0) + 32px);
   }
   .card {
@@ -337,36 +404,56 @@
 <div class="hero">
   <h1>上海工资计算器</h1>
   <div class="sub">2025 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
+</div>
 
-  <div class="field">
-    <label>税前月薪（元）</label>
-    <div class="input-row">
-      <span class="prefix">¥</span>
-      <input type="text" inputmode="decimal" id="salary" value="60000" autocomplete="off">
+<div class="input-card">
+
+  <!-- 第一行：月薪 + 年终奖 -->
+  <div class="field-pair">
+    <div class="field">
+      <label>税前月薪（元）</label>
+      <div class="input-row">
+        <span class="prefix">¥</span>
+        <input type="text" inputmode="decimal" id="salary" value="60000" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>年终奖（元，可选）</label>
+      <div class="input-row">
+        <span class="prefix">¥</span>
+        <input type="text" inputmode="decimal" id="bonus" value="0" autocomplete="off">
+      </div>
     </div>
   </div>
 
-  <div class="field">
-    <label>年终奖（元，可选）</label>
-    <div class="input-row">
-      <span class="prefix">¥</span>
-      <input type="text" inputmode="decimal" id="bonus" value="0" autocomplete="off">
-    </div>
-    <div class="quick-row" id="bonusQuick">
-      <button type="button" data-m="0">清零</button>
-      <button type="button" data-m="1">1 月薪</button>
-      <button type="button" data-m="2">2 月薪</button>
-      <button type="button" data-m="3">3 月薪</button>
-      <button type="button" data-m="6">6 月薪</button>
-      <button type="button" data-m="12">12 月薪</button>
-    </div>
+  <!-- 年终奖快捷按钮（单独一行占满宽度，点击体验更好） -->
+  <div class="quick-row" id="bonusQuick">
+    <button type="button" data-m="0">清零</button>
+    <button type="button" data-m="1">1 月薪</button>
+    <button type="button" data-m="2">2 月薪</button>
+    <button type="button" data-m="3">3 月薪</button>
+    <button type="button" data-m="6">6 月薪</button>
+    <button type="button" data-m="12">12 月薪</button>
   </div>
 
-  <div class="field">
-    <label>公积金基数（元，可选）<span class="field-hint">留空则跟随月薪</span></label>
-    <div class="input-row">
-      <span class="prefix">¥</span>
-      <input type="text" inputmode="decimal" id="hfBase" placeholder="自动" autocomplete="off">
+  <!-- 第二行：社保基数 + 公积金基数（默认同步跟随月薪，点"↻"恢复同步） -->
+  <div class="field-pair base-pair">
+    <div class="field">
+      <label>社保基数（元）</label>
+      <div class="input-row">
+        <span class="prefix">¥</span>
+        <input type="text" inputmode="decimal" id="socialBase" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>
+        公积金基数（元）
+        <button type="button" class="sync-btn" id="syncBase" title="与社保基数保持一致">= 社保</button>
+      </label>
+      <div class="input-row">
+        <span class="prefix">¥</span>
+        <input type="text" inputmode="decimal" id="hfBase" autocomplete="off">
+      </div>
     </div>
   </div>
 
@@ -498,14 +585,24 @@ function bonusTaxSeparate(bonus) {
   return 0;
 }
 
-function calculate({ monthly, bonus, mode, bonusMonth, customHfBase }) {
-  const socialBase = clamp(monthly, CONFIG.socialBaseMin, CONFIG.socialBaseMax);
-  // 公积金基数：优先用自定义值（仍受范围 clamp），否则跟随月薪
-  const hfBase = customHfBase != null && customHfBase > 0
-    ? clamp(customHfBase, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax)
-    : clamp(monthly, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customHfBase }) {
+  // 月薪 0 视为无效，基数全归 0（不强制按下限保底）
+  const socialBase = (customSocialBase != null && customSocialBase > 0)
+    ? clamp(customSocialBase, CONFIG.socialBaseMin, CONFIG.socialBaseMax)
+    : (monthly > 0 ? clamp(monthly, CONFIG.socialBaseMin, CONFIG.socialBaseMax) : 0);
+  const socialIsCustom = customSocialBase != null && customSocialBase > 0;
+  // 公积金基数：优先用自定义值，否则跟随月薪
+  let hfBase;
+  if (customHfBase != null && customHfBase > 0) {
+    hfBase = clamp(customHfBase, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+  } else if (monthly > 0) {
+    hfBase = clamp(monthly, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+  } else {
+    hfBase = 0;
+  }
   const hfIsCustom = customHfBase != null && customHfBase > 0;
-  const _customHfBase = customHfBase; // 原始入参，用于对比/平均重算时透传
+  const _customSocialBase = customSocialBase;
+  const _customHfBase = customHfBase;
 
   const insurance = CONFIG.insurance.map(it => {
     const base = it.name === '住房公积金' ? hfBase : socialBase;
@@ -567,8 +664,8 @@ function calculate({ monthly, bonus, mode, bonusMonth, customHfBase }) {
 
   return {
     insurance, personalTotal, companyTotal,
-    socialBase, hfBase, hfIsCustom,
-    _customHfBase,
+    socialBase, hfBase, socialIsCustom, hfIsCustom,
+    _customSocialBase, _customHfBase,
     bonusMonth: bm,
     monthly: monthlyDetails,
     annualTax, salaryTax, bonusTax: separateBonusTax, annualNet,
@@ -609,6 +706,7 @@ function render(r) {
         bonus: 0,
         mode: r.mode,
         bonusMonth: r.bonusMonth,
+        customSocialBase: r._customSocialBase,
         customHfBase: r._customHfBase,
       })
     : r;
@@ -643,11 +741,16 @@ function render(r) {
       bonus: r.annualBonus,
       mode: otherMode,
       bonusMonth: r.bonusMonth || 12,
+      customSocialBase: r._customSocialBase,
       customHfBase: r._customHfBase,
     });
     const diff = round2(r.annualNet - other.annualNet);
     const hasBonus = r.annualBonus > 0;
-    items.push(['年终奖',      hasBonus ? r.annualBonus : null]);
+    // 税前 - 含公积金年薪：正常情况下为正，表示一年"税 + 保险"的净损失
+    // 低收入时可能为负（公司公积金福利 > 税+保险扣款），此时 = 净收益
+    const lossAmount = round2(r.annualGross - realIncome);
+    const lossLabel = lossAmount >= 0 ? '税后差额' : '公积金倒贴';
+    items.push([lossLabel, Math.abs(lossAmount)]);
     items.push(['工资个税',    hasBonus ? r.salaryTax  : null]);
     items.push(['年终奖个税',  hasBonus ? r.bonusTax   : null]);
     items.push({
@@ -707,25 +810,22 @@ function render(r) {
 
   // 基数说明：显示 clamp 规则，且高亮是否触达上/下限
   const gross = r.annualGross ? (r.annualGross - r.annualBonus) / 12 : 0;
-  const socialHit = gross > CONFIG.socialBaseMax
-    ? ` <span class="hit">已触达上限</span>`
-    : gross < CONFIG.socialBaseMin && gross > 0
-      ? ` <span class="hit">低于下限，已按下限计</span>`
-      : ``;
-  // 公积金：看"自定义输入值"是否越界（如果是自定义），否则看月薪是否越界
-  const hfProbe = r.hfIsCustom ? r._customHfBase : gross;
-  let hfHit;
-  if (r.hfIsCustom) {
-    hfHit = ` <span class="custom">自定义</span>`;
-    if (r._customHfBase > CONFIG.housingFundBaseMax) hfHit += ` <span class="hit">超上限，已截</span>`;
-    else if (r._customHfBase < CONFIG.housingFundBaseMin) hfHit += ` <span class="hit">低于下限，已提</span>`;
-  } else {
-    hfHit = hfProbe > CONFIG.housingFundBaseMax
-      ? ` <span class="hit">已触达上限</span>`
-      : hfProbe < CONFIG.housingFundBaseMin && hfProbe > 0
-        ? ` <span class="hit">低于下限，已按下限计</span>`
-        : ``;
+
+  function baseHint(isCustom, customVal, autoProbe, lo, hi) {
+    if (isCustom) {
+      let tag = ` <span class="custom">自定义</span>`;
+      if (customVal > hi) tag += ` <span class="hit">超上限，已截</span>`;
+      else if (customVal < lo) tag += ` <span class="hit">低于下限，已提</span>`;
+      return tag;
+    }
+    if (autoProbe > hi) return ` <span class="hit">已触达上限</span>`;
+    if (autoProbe < lo && autoProbe > 0) return ` <span class="hit">低于下限，已按下限计</span>`;
+    return ``;
   }
+  const socialHit = baseHint(r.socialIsCustom, r._customSocialBase, gross,
+                             CONFIG.socialBaseMin, CONFIG.socialBaseMax);
+  const hfHit = baseHint(r.hfIsCustom, r._customHfBase, gross,
+                         CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
   document.getElementById('baseNote').innerHTML =
     `社保基数 ${fmt(r.socialBase)}${socialHit}，限额 ${fmt(CONFIG.socialBaseMin)} – ${fmt(CONFIG.socialBaseMax)}<br>` +
     `公积金基数 ${fmt(r.hfBase)}${hfHit}，限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}`;
@@ -743,7 +843,9 @@ function render(r) {
 // ================= 交互 =================
 const $salary = document.getElementById('salary');
 const $bonus  = document.getElementById('bonus');
+const $socialBase = document.getElementById('socialBase');
 const $hfBase = document.getElementById('hfBase');
+const $syncBase = document.getElementById('syncBase');
 const $bonusMonth = document.getElementById('bonusMonth');
 const $bonusModeWrap = document.getElementById('bonusMode');
 
@@ -767,14 +869,28 @@ $bonusModeWrap.addEventListener('click', e => {
 function readInputs() {
   const s = parseFloat($salary.value) || 0;
   const b = parseFloat($bonus.value)  || 0;
-  const h = parseFloat($hfBase.value); // 空 / NaN 表示自动
+  // 基数只有在 input 被标记为真实输入时才作为自定义值使用，否则视为 null（跟随月薪）
+  const sbRaw = $socialBase.dataset.user === 'true' ? parseFloat($socialBase.value) : NaN;
+  const hbRaw = $hfBase.dataset.user === 'true'     ? parseFloat($hfBase.value)     : NaN;
   return {
     monthly: Math.max(0, s),
     bonus:   Math.max(0, b),
     mode:    bonusMode,
     bonusMonth: parseInt($bonusMonth.value, 10),
-    customHfBase: (isFinite(h) && h > 0) ? h : null,
+    customSocialBase: (isFinite(sbRaw) && sbRaw > 0) ? sbRaw : null,
+    customHfBase:     (isFinite(hbRaw) && hbRaw > 0) ? hbRaw : null,
   };
+}
+
+// 用影子值填充基数输入框（表示当前跟随月薪的结果）
+function fillBaseShadow(r) {
+  function setShadow($el, shadow) {
+    if ($el.dataset.user === 'true') return; // 用户已输入，不覆盖
+    $el.value = shadow > 0 ? String(shadow) : '';
+    $el.classList.add('auto-value');
+  }
+  setShadow($socialBase, r.socialIsCustom ? 0 : r.socialBase);
+  setShadow($hfBase,     r.hfIsCustom     ? 0 : r.hfBase);
 }
 
 function saveAndRecalc() {
@@ -782,11 +898,9 @@ function saveAndRecalc() {
   try {
     localStorage.setItem('salaryCalc', JSON.stringify({ ...input, bonusMode, bonusMultiplier }));
   } catch (e) {}
-  if (input.monthly <= 0) {
-    document.getElementById('annualNet').textContent = '—';
-    return;
-  }
-  render(calculate(input));
+  const result = calculate(input);
+  render(result);
+  fillBaseShadow(result);
 }
 
 // 年终奖倍数（null 表示自由输入模式，数字表示 "= 月薪 × N"）
@@ -812,7 +926,14 @@ try {
     if (typeof saved.monthly === 'number')    $salary.value = saved.monthly;
     if (typeof saved.bonus === 'number')      $bonus.value = saved.bonus;
     if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
-    if (typeof saved.customHfBase === 'number') $hfBase.value = saved.customHfBase;
+    if (typeof saved.customSocialBase === 'number') {
+      $socialBase.value = saved.customSocialBase;
+      $socialBase.dataset.user = 'true';
+    }
+    if (typeof saved.customHfBase === 'number') {
+      $hfBase.value = saved.customHfBase;
+      $hfBase.dataset.user = 'true';
+    }
     if (typeof saved.bonusMultiplier === 'number') {
       bonusMultiplier = saved.bonusMultiplier;
       highlightQuickButton();
@@ -825,19 +946,69 @@ try {
   }
 } catch (e) {}
 
-// 月薪变化：如果处于倍数模式，同步更新年终奖
+// 月薪变化：年终奖按倍数同步；基数字段**若为空（即跟随月薪）**也不用动（计算时自动跟随）
 $salary.addEventListener('input', () => {
   updateBonusFromMultiplier();
   saveAndRecalc();
 });
-// 手动改年终奖：退出倍数模式
 $bonus.addEventListener('input', () => {
   bonusMultiplier = null;
   highlightQuickButton();
   saveAndRecalc();
 });
-$hfBase.addEventListener('input', saveAndRecalc);
+$socialBase.addEventListener('focus', () => {
+  // 聚焦时：如果是"影子值"，清空让用户从头输入
+  if ($socialBase.classList.contains('auto-value')) {
+    $socialBase.value = '';
+    $socialBase.classList.remove('auto-value');
+  }
+});
+$socialBase.addEventListener('input', () => {
+  $socialBase.dataset.user = 'true';
+  $socialBase.classList.remove('auto-value');
+  saveAndRecalc();
+});
+$socialBase.addEventListener('blur', () => {
+  // 失焦时：如果用户清空了，重置为"自动跟随"状态
+  if ($socialBase.value.trim() === '') {
+    $socialBase.dataset.user = '';
+    saveAndRecalc();
+  }
+});
+$hfBase.addEventListener('focus', () => {
+  if ($hfBase.classList.contains('auto-value')) {
+    $hfBase.value = '';
+    $hfBase.classList.remove('auto-value');
+  }
+});
+$hfBase.addEventListener('input', () => {
+  $hfBase.dataset.user = 'true';
+  $hfBase.classList.remove('auto-value');
+  saveAndRecalc();
+});
+$hfBase.addEventListener('blur', () => {
+  if ($hfBase.value.trim() === '') {
+    $hfBase.dataset.user = '';
+    saveAndRecalc();
+  }
+});
 $bonusMonth.addEventListener('change', saveAndRecalc);
+
+// 同步按钮：把公积金基数拉成和社保一致
+//  - 社保已自定义：公积金也填成同样的数（标记为用户输入）
+//  - 社保是"自动跟随"：公积金也回到自动跟随状态
+$syncBase.addEventListener('click', () => {
+  if ($socialBase.dataset.user === 'true') {
+    $hfBase.value = $socialBase.value;
+    $hfBase.dataset.user = 'true';
+    $hfBase.classList.remove('auto-value');
+  } else {
+    // 社保本身就是自动，公积金也回到自动
+    $hfBase.value = '';
+    $hfBase.dataset.user = '';
+  }
+  saveAndRecalc();
+});
 
 // 年终奖快捷按钮：月薪 × N，并记录倍数
 $bonusQuick.addEventListener('click', e => {
