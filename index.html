@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="工资计算器">
+<meta name="theme-color" content="#3B8CF5">
+<title>上海工资计算器</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%233B8CF5'/><text x='90' y='120' font-size='110' text-anchor='middle' fill='white' font-family='-apple-system,sans-serif' font-weight='700'>¥</text></svg>">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #f4f5f7;
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* 顶部渐变区 */
+  .hero {
+    background: linear-gradient(135deg, #3B8CF5 0%, #66B3FF 100%);
+    color: #fff;
+    padding: calc(env(safe-area-inset-top, 0) + 24px) 20px 28px;
+  }
+  .hero h1 {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .hero .sub {
+    font-size: 12px;
+    opacity: .85;
+    margin-bottom: 20px;
+  }
+  .field {
+    margin-bottom: 16px;
+  }
+  .field label {
+    display: block;
+    font-size: 13px;
+    opacity: .9;
+    margin-bottom: 6px;
+  }
+  .input-row {
+    display: flex;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(255,255,255,.5);
+    padding-bottom: 6px;
+  }
+  .input-row .prefix {
+    font-size: 22px;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .input-row input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    caret-color: #fff;
+    width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .input-row input::placeholder { color: rgba(255,255,255,.55); }
+
+  /* 分段选择器 */
+  .segmented {
+    display: flex;
+    background: rgba(255,255,255,.2);
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 14px;
+  }
+  .segmented button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 14px;
+    padding: 8px 0;
+    border-radius: 8px;
+    font-family: inherit;
+  }
+  .segmented button.active {
+    background: #fff;
+    color: #3B8CF5;
+    font-weight: 600;
+  }
+
+  .inline-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .inline-row select {
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    font-family: inherit;
+  }
+  .inline-row select option { color: #222; }
+
+  /* 结果区 */
+  .content {
+    padding: 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0) + 32px);
+  }
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .card-title {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #3B8CF5;
+    margin-bottom: 12px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: #3B8CF5;
+    margin-right: 6px;
+    border-radius: 2px;
+  }
+
+  /* 顶部总览蓝卡 */
+  .summary {
+    background: linear-gradient(135deg, #3B8CF5 0%, #5AA8FF 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .summary .big {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .summary .big-label {
+    display: inline-block;
+    background: #fff;
+    color: #3B8CF5;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-left: 6px;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 4px;
+    margin-top: 14px;
+    background: rgba(255,255,255,.12);
+    padding: 12px 6px;
+    border-radius: 10px;
+  }
+  .summary-grid .item {
+    text-align: center;
+    min-width: 0;
+  }
+  .summary-grid .v {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .summary-grid .t {
+    font-size: 10px;
+    opacity: .85;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 10px 4px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { text-align: left; padding-left: 8px; }
+  th:last-child, td:last-child { text-align: right; padding-right: 8px; }
+  th {
+    color: #3B8CF5;
+    font-weight: 500;
+    font-size: 12px;
+    border-bottom: 1px solid #eee;
+  }
+  tr:last-child td { border-bottom: none; }
+  .total-row td {
+    font-weight: 600;
+    color: #222;
+    background: #f8fafd;
+  }
+  .muted { color: #888; font-size: 11px; }
+
+  .hint {
+    text-align: center;
+    color: #aaa;
+    font-size: 11px;
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>上海工资计算器</h1>
+  <div class="sub">2024 上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
+
+  <div class="field">
+    <label>税前月薪（元）</label>
+    <div class="input-row">
+      <span class="prefix">¥</span>
+      <input type="text" inputmode="decimal" id="salary" value="60000" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>年终奖（元，可选）</label>
+    <div class="input-row">
+      <span class="prefix">¥</span>
+      <input type="text" inputmode="decimal" id="bonus" value="0" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="field">
+    <label>年终奖计税方式</label>
+    <div class="segmented" id="bonusMode">
+      <button data-v="separate" class="active">单独计税</button>
+      <button data-v="combined">并入综合所得</button>
+    </div>
+    <div class="inline-row">
+      <span>发放月份</span>
+      <select id="bonusMonth"></select>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <!-- 汇总蓝卡 -->
+  <div class="summary">
+    <div>
+      <span class="big" id="annualNet">—</span>
+      <span class="big-label">到手年薪</span>
+    </div>
+    <div class="summary-grid" id="summaryGrid"></div>
+  </div>
+
+  <!-- 五险一金 -->
+  <div class="card">
+    <div class="card-title">每月五险一金详情</div>
+    <table>
+      <thead>
+        <tr><th>五险一金</th><th>个人缴纳</th><th>公司缴纳</th></tr>
+      </thead>
+      <tbody id="insuranceBody"></tbody>
+      <tfoot>
+        <tr class="total-row"><td>总计</td><td id="personalTotal">—</td><td id="companyTotal">—</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- 每月明细 -->
+  <div class="card">
+    <div class="card-title">每月到手工资</div>
+    <table>
+      <thead>
+        <tr><th>月份</th><th>税前</th><th>个税</th><th>税后</th></tr>
+      </thead>
+      <tbody id="monthlyBody"></tbody>
+    </table>
+  </div>
+
+  <div class="hint">数值仅供参考 · 计算规则来源于上海 2024 年度官方标准</div>
+</div>
+
+<script>
+// ================= 配置（对应 Swift SalaryConfig.swift） =================
+const CONFIG = {
+  socialBaseMin: 7384,
+  socialBaseMax: 36921,
+  housingFundBaseMin: 2690,
+  housingFundBaseMax: 36921,
+  taxThresholdMonthly: 5000,
+  insurance: [
+    { name: '养老保险',   personal: 0.08,  company: 0.16  },
+    { name: '医疗保险',   personal: 0.02,  company: 0.085 },
+    { name: '失业保险',   personal: 0.005, company: 0.005 },
+    { name: '工伤保险',   personal: 0.0,   company: 0.0026 },
+    { name: '生育保险',   personal: 0.0,   company: 0.0   },
+    { name: '住房公积金', personal: 0.12,  company: 0.12  },
+  ],
+  // 年度累进税率表 [上限, 税率, 速算扣除]
+  yearlyBrackets: [
+    [36000,    0.03, 0],
+    [144000,   0.10, 2520],
+    [300000,   0.20, 16920],
+    [420000,   0.25, 31920],
+    [660000,   0.30, 52920],
+    [960000,   0.35, 85920],
+    [Infinity, 0.45, 181920],
+  ],
+  // 年终奖月度表（年度 / 12）
+  bonusMonthlyBrackets: [
+    [3000,     0.03, 0],
+    [12000,    0.10, 210],
+    [25000,    0.20, 1410],
+    [35000,    0.25, 2660],
+    [55000,    0.30, 4410],
+    [80000,    0.35, 7160],
+    [Infinity, 0.45, 15160],
+  ],
+};
+
+const clamp = (x, lo, hi) => Math.min(Math.max(x, lo), hi);
+const round2 = x => Math.round(x * 100) / 100;
+
+function cumulativeTax(taxable) {
+  if (taxable <= 0) return 0;
+  for (const [ub, r, q] of CONFIG.yearlyBrackets) {
+    if (taxable <= ub) return taxable * r - q;
+  }
+  return 0;
+}
+
+function bonusTaxSeparate(bonus) {
+  if (bonus <= 0) return 0;
+  const m = bonus / 12;
+  for (const [ub, r, q] of CONFIG.bonusMonthlyBrackets) {
+    if (m <= ub) return bonus * r - q;
+  }
+  return 0;
+}
+
+function calculate({ monthly, bonus, mode, bonusMonth }) {
+  const socialBase = clamp(monthly, CONFIG.socialBaseMin, CONFIG.socialBaseMax);
+  const hfBase     = clamp(monthly, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+
+  const insurance = CONFIG.insurance.map(it => {
+    const base = it.name === '住房公积金' ? hfBase : socialBase;
+    return {
+      name: it.name,
+      personalRate: it.personal,
+      companyRate:  it.company,
+      personalAmount: round2(base * it.personal),
+      companyAmount:  round2(base * it.company),
+    };
+  });
+  const personalTotal = round2(insurance.reduce((s, i) => s + i.personalAmount, 0));
+  const companyTotal  = round2(insurance.reduce((s, i) => s + i.companyAmount,  0));
+
+  const bm = clamp(bonusMonth, 1, 12);
+  const monthlyDetails = [];
+  let cumIncome = 0, cumDeduct = 0, cumThreshold = 0, cumTaxPaid = 0;
+
+  for (let m = 1; m <= 12; m++) {
+    let grossThisMonth = monthly;
+    if (mode === 'combined' && m === bm) grossThisMonth += bonus;
+
+    cumIncome    += grossThisMonth;
+    cumDeduct    += personalTotal;
+    cumThreshold += CONFIG.taxThresholdMonthly;
+
+    const taxable   = Math.max(0, cumIncome - cumDeduct - cumThreshold);
+    const cumTaxDue = cumulativeTax(taxable);
+    let tax = Math.max(0, round2(cumTaxDue - cumTaxPaid));
+    cumTaxPaid += tax;
+
+    if (mode === 'separate' && m === bm && bonus > 0) {
+      tax = round2(tax + bonusTaxSeparate(bonus));
+      grossThisMonth += bonus;
+    }
+
+    monthlyDetails.push({
+      month: m,
+      gross: round2(grossThisMonth),
+      tax: tax,
+      net: round2(grossThisMonth - personalTotal - tax),
+    });
+  }
+
+  const annualTax = round2(monthlyDetails.reduce((s, x) => s + x.tax, 0));
+  const separateBonusTax = (mode === 'separate' && bonus > 0) ? round2(bonusTaxSeparate(bonus)) : 0;
+  const salaryTax = round2(annualTax - separateBonusTax);
+  const annualNet = round2(monthlyDetails.reduce((s, x) => s + x.net, 0));
+
+  const ann = name => {
+    const i = insurance.find(x => x.name === name);
+    return round2((i ? i.personalAmount : 0) * 12);
+  };
+
+  return {
+    insurance, personalTotal, companyTotal,
+    monthly: monthlyDetails,
+    annualTax, salaryTax, bonusTax: separateBonusTax, annualNet,
+    annualGross: round2(monthly * 12 + bonus),
+    annualBonus: bonus,
+    mode,
+    ann: {
+      pension:     ann('养老保险'),
+      medical:     ann('医疗保险'),
+      unemploy:    ann('失业保险'),
+      injury:      ann('工伤保险'),
+      maternity:   ann('生育保险'),
+      housingFund: ann('住房公积金'),
+    }
+  };
+}
+
+// ================= 渲染 =================
+const fmt = x => {
+  if (!isFinite(x)) return '—';
+  return x.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+};
+const pct = x => {
+  const v = x * 100;
+  return Math.abs(v - Math.round(v)) < 1e-9 ? `${Math.round(v)}%` : `${v.toFixed(2)}%`;
+};
+
+function render(r) {
+  document.getElementById('annualNet').textContent = fmt(r.annualNet);
+
+  const items = [
+    ['年度缴税', r.annualTax],
+    ['个人公积金', r.ann.housingFund],
+    ['养老保险', r.ann.pension],
+    ['医疗保险', r.ann.medical],
+    ['失业保险', r.ann.unemploy],
+    ['工伤保险', r.ann.injury],
+    ['生育保险', r.ann.maternity],
+    ['税前年薪', r.annualGross],
+  ];
+  if (r.annualBonus > 0) {
+    items.push(['年终奖', r.annualBonus]);
+    items.push(['工资个税', r.salaryTax]);
+    items.push(['年终奖个税', r.bonusTax]);
+    items.push([r.mode === 'separate' ? '单独计税' : '并入综合', null]);
+  }
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = items.map(([t, v]) =>
+    `<div class="item"><div class="v">${v === null ? '—' : fmt(v)}</div><div class="t">${t}</div></div>`
+  ).join('');
+
+  document.getElementById('insuranceBody').innerHTML = r.insurance.map(i =>
+    `<tr>
+      <td>${i.name}</td>
+      <td>${fmt(i.personalAmount)} <span class="muted">(${pct(i.personalRate)})</span></td>
+      <td>${fmt(i.companyAmount)} <span class="muted">(${pct(i.companyRate)})</span></td>
+    </tr>`
+  ).join('');
+  document.getElementById('personalTotal').textContent = fmt(r.personalTotal);
+  document.getElementById('companyTotal').textContent  = fmt(r.companyTotal);
+
+  document.getElementById('monthlyBody').innerHTML = r.monthly.map(m =>
+    `<tr>
+      <td>${m.month}月</td>
+      <td>${fmt(m.gross)}</td>
+      <td>${fmt(m.tax)}</td>
+      <td>${fmt(m.net)}</td>
+    </tr>`
+  ).join('');
+}
+
+// ================= 交互 =================
+const $salary = document.getElementById('salary');
+const $bonus  = document.getElementById('bonus');
+const $bonusMonth = document.getElementById('bonusMonth');
+const $bonusModeWrap = document.getElementById('bonusMode');
+
+// 月份下拉
+for (let i = 1; i <= 12; i++) {
+  const opt = document.createElement('option');
+  opt.value = i; opt.textContent = `${i} 月`;
+  if (i === 12) opt.selected = true;
+  $bonusMonth.appendChild(opt);
+}
+
+let bonusMode = 'separate';
+$bonusModeWrap.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  [...$bonusModeWrap.children].forEach(b => b.classList.toggle('active', b === btn));
+  bonusMode = btn.dataset.v;
+  saveAndRecalc();
+});
+
+function readInputs() {
+  const s = parseFloat($salary.value) || 0;
+  const b = parseFloat($bonus.value)  || 0;
+  return {
+    monthly: Math.max(0, s),
+    bonus:   Math.max(0, b),
+    mode:    bonusMode,
+    bonusMonth: parseInt($bonusMonth.value, 10),
+  };
+}
+
+function saveAndRecalc() {
+  const input = readInputs();
+  try {
+    localStorage.setItem('salaryCalc', JSON.stringify({ ...input, bonusMode }));
+  } catch (e) {}
+  if (input.monthly <= 0) {
+    document.getElementById('annualNet').textContent = '—';
+    return;
+  }
+  render(calculate(input));
+}
+
+// 恢复上次输入
+try {
+  const saved = JSON.parse(localStorage.getItem('salaryCalc') || 'null');
+  if (saved) {
+    if (typeof saved.monthly === 'number')    $salary.value = saved.monthly;
+    if (typeof saved.bonus === 'number')      $bonus.value = saved.bonus;
+    if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
+    if (saved.bonusMode) {
+      bonusMode = saved.bonusMode;
+      [...$bonusModeWrap.children].forEach(b =>
+        b.classList.toggle('active', b.dataset.v === bonusMode));
+    }
+  }
+} catch (e) {}
+
+$salary.addEventListener('input', saveAndRecalc);
+$bonus.addEventListener('input', saveAndRecalc);
+$bonusMonth.addEventListener('change', saveAndRecalc);
+
+saveAndRecalc();
+</script>
+</body>
+</html>
