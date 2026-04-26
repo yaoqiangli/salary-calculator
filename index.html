@@ -362,6 +362,97 @@
     font-size: 12px;
     border-bottom: 1px solid #eee;
   }
+  /* 五险一金表：每行独立 grid（tr 保留，可以画整行下划线） */
+  .ins-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .ins-table thead, .ins-table tbody, .ins-table tfoot { display: contents; }
+  .ins-table tr {
+    display: grid;
+    grid-template-columns: 72px auto auto auto;   /* 第 1 列固定 72px 容纳"住房公积金"5 字 */
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #eee;
+  }
+  .ins-table th, .ins-table td {
+    padding: 10px 0;
+    white-space: nowrap;
+    border: none;
+  }
+  /* 第 1 列左对齐；数据列的 cell 本身居中，cell 内容（amt-cell）自己右对齐—— 这样表头和数据中心对齐 */
+  .ins-table td:nth-child(1), .ins-table th:nth-child(1) { justify-self: start; }
+  .ins-table td:nth-child(n+2), .ins-table th:nth-child(n+2) { justify-self: center; }
+
+  .ins-table th {
+    color: #3B8CF5;
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .ins-table .total-row {
+    border-bottom: none;
+    background: #f8fafd;
+  }
+  .ins-table .total-row td {
+    font-weight: 600;
+    color: #222;
+    padding: 12px 0;
+  }
+  .ins-table .amt-cell {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ins-table .amt-cell .amt {
+    min-width: 56px;
+    text-align: right;
+  }
+  .ins-table .amt-cell .pct {
+    color: #aaa;
+    font-size: 10px;
+    min-width: 32px;
+    text-align: right;
+  }
+  /* 表头的 amt-cell：文字居中对齐，不走右对齐 */
+  .ins-table th .amt-cell .amt { text-align: center; }
+  .ins-table th .amt-cell .pct { text-align: center; }
+
+  /* 每月到手表：同思路，5 列 */
+  .monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .monthly-table thead, .monthly-table tbody { display: contents; }
+  .monthly-table tr {
+    display: grid;
+    grid-template-columns: 34px auto auto auto auto;  /* 月份列固定，足以装"12月" */
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #eee;
+  }
+  .monthly-table tr:last-child { border-bottom: none; }
+  .monthly-table th, .monthly-table td {
+    padding: 10px 0;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    border: none;
+  }
+  .monthly-table td:nth-child(1), .monthly-table th:nth-child(1) { justify-self: start; }
+  .monthly-table td:nth-child(n+2), .monthly-table th:nth-child(n+2) { justify-self: center; }
+  /* 统一数据单元格宽度，保证各行列位置一致（同 .amt-cell 思路） */
+  .monthly-table .mc-num { display: inline-block; min-width: 58px; text-align: right; }
+  .monthly-table .mc-rate { display: inline-block; min-width: 34px; text-align: right; }
+  .monthly-table .mc-month { display: inline-block; min-width: 30px; }
+  /* 表头里同样的 span 改为居中，和数据块中心对齐 */
+  .monthly-table th .mc-num,
+  .monthly-table th .mc-rate,
+  .monthly-table th .mc-month { text-align: center; }
+  .monthly-table th {
+    color: #3B8CF5;
+    font-weight: 500;
+    font-size: 12px;
+  }
   @media (max-width: 375px) {
     th, td { font-size: 12px; padding: 9px 2px; }
     .muted { font-size: 10px; }
@@ -373,15 +464,36 @@
     background: #f8fafd;
   }
   .muted { color: #888; font-size: 11px; }
+  /* 税率列交替色：相邻的不同税率档用深浅色区分，同一档保持一致 */
+  .rate-a { color: #222; }
+  .rate-b { color: #888; }
   .base-note {
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px dashed #e5e7eb;
     font-size: 11px;
     color: #888;
-    line-height: 1.6;
+    /* 3 列全部 auto：标签 / 数字+状态 / 限额 紧挨在一起，右侧留白 */
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: start;
+    column-gap: 10px;
+    row-gap: 4px;
+    align-items: baseline;
   }
-  .base-note .hit { color: #e67700; font-weight: 500; }
+  .base-note .bn-label { color: #666; }
+  .base-note .bn-val {
+    font-variant-numeric: tabular-nums;
+    color: #333;
+    font-weight: 500;
+  }
+  .base-note .bn-limit {
+    color: #aaa;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .base-note .hit { color: #e67700; font-weight: 500; margin-left: 4px; }
   .base-note .custom {
     color: #3B8CF5;
     font-weight: 500;
@@ -389,6 +501,7 @@
     border-radius: 4px;
     padding: 0 4px;
     font-size: 10px;
+    margin-left: 4px;
   }
 
   .hint {
@@ -494,14 +607,24 @@
 
   <!-- 五险一金 -->
   <div class="card">
-    <div class="card-title">每月五险一金详情</div>
-    <table>
+    <div class="card-title">每月五险一金</div>
+    <table class="ins-table">
       <thead>
-        <tr><th>项目</th><th>基数</th><th>个人</th><th>公司</th></tr>
+        <tr>
+          <th>项目</th>
+          <th>基数</th>
+          <th><span class="amt-cell"><span class="amt">个人</span><span class="pct">&nbsp;</span></span></th>
+          <th><span class="amt-cell"><span class="amt">公司</span><span class="pct">&nbsp;</span></span></th>
+        </tr>
       </thead>
       <tbody id="insuranceBody"></tbody>
       <tfoot>
-        <tr class="total-row"><td>总计</td><td></td><td id="personalTotal">—</td><td id="companyTotal">—</td></tr>
+        <tr class="total-row">
+          <td>总计</td>
+          <td aria-hidden="true" style="visibility:hidden">37,302.0</td>
+          <td><span class="amt-cell"><span class="amt" id="personalTotal">—</span><span class="pct">&nbsp;</span></span></td>
+          <td><span class="amt-cell"><span class="amt" id="companyTotal">—</span><span class="pct">&nbsp;</span></span></td>
+        </tr>
       </tfoot>
     </table>
     <div class="base-note" id="baseNote"></div>
@@ -510,9 +633,15 @@
   <!-- 每月明细 -->
   <div class="card">
     <div class="card-title">每月到手工资</div>
-    <table>
+    <table class="monthly-table">
       <thead>
-        <tr><th>月份</th><th>税前</th><th>个税</th><th>税后</th></tr>
+        <tr>
+          <th><span class="mc-month">月份</span></th>
+          <th><span class="mc-num">税前</span></th>
+          <th><span class="mc-rate">税率</span></th>
+          <th><span class="mc-num">个税</span></th>
+          <th><span class="mc-num">税后</span></th>
+        </tr>
       </thead>
       <tbody id="monthlyBody"></tbody>
     </table>
@@ -635,6 +764,14 @@ function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customH
     let tax = Math.max(0, round2(cumTaxDue - cumTaxPaid));
     cumTaxPaid += tax;
 
+    // 当月累计应纳税所得额对应的边际税率档
+    let marginalRate = 0;
+    if (taxable > 0) {
+      for (const [ub, r] of CONFIG.yearlyBrackets) {
+        if (taxable <= ub) { marginalRate = r; break; }
+      }
+    }
+
     if (mode === 'separate' && m === bm && bonus > 0) {
       tax = round2(tax + bonusTaxSeparate(bonus));
       grossThisMonth += bonus;
@@ -645,6 +782,7 @@ function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customH
       gross: round2(grossThisMonth),
       tax: tax,
       net: round2(grossThisMonth - personalTotal - tax),
+      rate: marginalRate,
     });
   }
 
@@ -692,7 +830,9 @@ const fmt = x => {
 };
 const pct = x => {
   const v = x * 100;
-  return Math.abs(v - Math.round(v)) < 1e-9 ? `${Math.round(v)}%` : `${v.toFixed(2)}%`;
+  if (Math.abs(v - Math.round(v)) < 1e-9) return `${Math.round(v)}%`;
+  // 保留 2 位小数，但去掉末尾多余的 0：0.50→0.5，8.50→8.5
+  return `${v.toFixed(2).replace(/\.?0+$/, '')}%`;
 };
 
 function render(r) {
@@ -801,8 +941,8 @@ function render(r) {
     `<tr>
       <td>${i.name}</td>
       <td>${fmt(i.base)}</td>
-      <td>${fmt(i.personalAmount)} <span class="muted">${pct(i.personalRate)}</span></td>
-      <td>${fmt(i.companyAmount)} <span class="muted">${pct(i.companyRate)}</span></td>
+      <td><span class="amt-cell"><span class="amt">${fmt(i.personalAmount)}</span><span class="pct">${pct(i.personalRate)}</span></span></td>
+      <td><span class="amt-cell"><span class="amt">${fmt(i.companyAmount)}</span><span class="pct">${pct(i.companyRate)}</span></span></td>
     </tr>`
   ).join('');
   document.getElementById('personalTotal').textContent = fmt(r.personalTotal);
@@ -827,17 +967,32 @@ function render(r) {
   const hfHit = baseHint(r.hfIsCustom, r._customHfBase, gross,
                          CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
   document.getElementById('baseNote').innerHTML =
-    `社保基数 ${fmt(r.socialBase)}${socialHit}，限额 ${fmt(CONFIG.socialBaseMin)} – ${fmt(CONFIG.socialBaseMax)}<br>` +
-    `公积金基数 ${fmt(r.hfBase)}${hfHit}，限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}`;
+    `<span class="bn-label">社保基数</span>
+     <span class="bn-val">${fmt(r.socialBase)}${socialHit}</span>
+     <span class="bn-limit">限额 ${fmt(CONFIG.socialBaseMin)} – ${fmt(CONFIG.socialBaseMax)}</span>
+     <span class="bn-label">公积金基数</span>
+     <span class="bn-val">${fmt(r.hfBase)}${hfHit}</span>
+     <span class="bn-limit">限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}</span>`;
 
-  document.getElementById('monthlyBody').innerHTML = r.monthly.map(m =>
-    `<tr>
-      <td>${m.month}月</td>
-      <td>${fmt(m.gross)}</td>
-      <td>${fmt(m.tax)}</td>
-      <td>${fmt(m.net)}</td>
-    </tr>`
-  ).join('');
+  // 税率交替色：每跳一档切换一次，让你一眼看出"这几个月是同一档"
+  let rateClass = 'rate-a';
+  let lastRate = -1;
+  document.getElementById('monthlyBody').innerHTML = r.monthly.map(m => {
+    if (m.rate !== lastRate) {
+      rateClass = rateClass === 'rate-a' ? 'rate-b' : 'rate-a';
+      lastRate = m.rate;
+    }
+    const rate = m.rate > 0
+      ? `<span class="${rateClass}">${Math.round(m.rate * 100)}%</span>`
+      : `<span class="muted">—</span>`;
+    return `<tr>
+      <td><span class="mc-month">${m.month}月</span></td>
+      <td><span class="mc-num">${fmt(m.gross)}</span></td>
+      <td><span class="mc-rate">${rate}</span></td>
+      <td><span class="mc-num">${fmt(m.tax)}</span></td>
+      <td><span class="mc-num">${fmt(m.net)}</span></td>
+    </tr>`;
+  }).join('');
 }
 
 // ================= 交互 =================
