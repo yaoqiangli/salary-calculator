@@ -430,10 +430,11 @@
   .monthly-table thead, .monthly-table tbody { display: contents; }
   .monthly-table tr {
     display: grid;
-    grid-template-columns: 34px auto auto auto auto;  /* 月份列固定，足以装"12月" */
-    justify-content: space-between;
+    /* 5 列固定比例，保证每行列位置一致 */
+    grid-template-columns: 40px 1fr 60px 1fr 1fr;
     align-items: baseline;
     border-bottom: 1px solid #eee;
+    gap: 12px;
   }
   .monthly-table tr:last-child { border-bottom: none; }
   .monthly-table th, .monthly-table td {
