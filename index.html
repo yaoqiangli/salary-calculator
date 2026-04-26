@@ -22,7 +22,7 @@
   .hero {
     background: linear-gradient(135deg, #3B8CF5 0%, #66B3FF 100%);
     color: #fff;
-    padding: calc(env(safe-area-inset-top, 0) + 24px) 20px 28px;
+    padding: calc(env(safe-area-inset-top, 0) + 24px) 20px 16px;
   }
   .hero h1 {
     margin: 0 0 4px;
@@ -38,11 +38,20 @@
   .field {
     margin-bottom: 16px;
   }
+  .hero .field:last-child {
+    margin-bottom: 0;
+  }
   .field label {
     display: block;
     font-size: 13px;
     opacity: .9;
     margin-bottom: 6px;
+  }
+  .field-hint {
+    font-size: 11px;
+    opacity: .65;
+    margin-left: 6px;
+    font-weight: normal;
   }
   .input-row {
     display: flex;
@@ -135,6 +144,12 @@
   }
   .quick-row button:active {
     background: rgba(255,255,255,.35);
+  }
+  .quick-row button.active {
+    background: #fff;
+    color: #3B8CF5;
+    font-weight: 600;
+    border-color: #fff;
   }
 
   /* 结果区 */
@@ -300,6 +315,14 @@
     line-height: 1.6;
   }
   .base-note .hit { color: #e67700; font-weight: 500; }
+  .base-note .custom {
+    color: #3B8CF5;
+    font-weight: 500;
+    border: 1px solid #3B8CF5;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-size: 10px;
+  }
 
   .hint {
     text-align: center;
@@ -340,6 +363,14 @@
   </div>
 
   <div class="field">
+    <label>公积金基数（元，可选）<span class="field-hint">留空则跟随月薪</span></label>
+    <div class="input-row">
+      <span class="prefix">¥</span>
+      <input type="text" inputmode="decimal" id="hfBase" placeholder="自动" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="field">
     <label>年终奖计税方式</label>
     <div class="segmented" id="bonusMode">
       <button data-v="separate" class="active">单独计税</button>
@@ -370,7 +401,7 @@
     </div>
     <div class="mg-item">
       <div class="mg-v" id="avgReal">—</div>
-      <div class="mg-t">月含公积金 <span class="mg-note">不含年终</span></div>
+      <div class="mg-t">平均月含公积金 <span class="mg-note">不含年终</span></div>
     </div>
   </div>
 
@@ -467,9 +498,14 @@ function bonusTaxSeparate(bonus) {
   return 0;
 }
 
-function calculate({ monthly, bonus, mode, bonusMonth }) {
+function calculate({ monthly, bonus, mode, bonusMonth, customHfBase }) {
   const socialBase = clamp(monthly, CONFIG.socialBaseMin, CONFIG.socialBaseMax);
-  const hfBase     = clamp(monthly, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+  // 公积金基数：优先用自定义值（仍受范围 clamp），否则跟随月薪
+  const hfBase = customHfBase != null && customHfBase > 0
+    ? clamp(customHfBase, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax)
+    : clamp(monthly, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
+  const hfIsCustom = customHfBase != null && customHfBase > 0;
+  const _customHfBase = customHfBase; // 原始入参，用于对比/平均重算时透传
 
   const insurance = CONFIG.insurance.map(it => {
     const base = it.name === '住房公积金' ? hfBase : socialBase;
@@ -531,7 +567,8 @@ function calculate({ monthly, bonus, mode, bonusMonth }) {
 
   return {
     insurance, personalTotal, companyTotal,
-    socialBase, hfBase,
+    socialBase, hfBase, hfIsCustom,
+    _customHfBase,
     bonusMonth: bm,
     monthly: monthlyDetails,
     annualTax, salaryTax, bonusTax: separateBonusTax, annualNet,
@@ -572,6 +609,7 @@ function render(r) {
         bonus: 0,
         mode: r.mode,
         bonusMonth: r.bonusMonth,
+        customHfBase: r._customHfBase,
       })
     : r;
   const avgCash = round2(salaryOnly.annualNet / 12);
@@ -605,6 +643,7 @@ function render(r) {
       bonus: r.annualBonus,
       mode: otherMode,
       bonusMonth: r.bonusMonth || 12,
+      customHfBase: r._customHfBase,
     });
     const diff = round2(r.annualNet - other.annualNet);
     const hasBonus = r.annualBonus > 0;
@@ -673,11 +712,20 @@ function render(r) {
     : gross < CONFIG.socialBaseMin && gross > 0
       ? ` <span class="hit">低于下限，已按下限计</span>`
       : ``;
-  const hfHit = gross > CONFIG.housingFundBaseMax
-    ? ` <span class="hit">已触达上限</span>`
-    : gross < CONFIG.housingFundBaseMin && gross > 0
-      ? ` <span class="hit">低于下限，已按下限计</span>`
-      : ``;
+  // 公积金：看"自定义输入值"是否越界（如果是自定义），否则看月薪是否越界
+  const hfProbe = r.hfIsCustom ? r._customHfBase : gross;
+  let hfHit;
+  if (r.hfIsCustom) {
+    hfHit = ` <span class="custom">自定义</span>`;
+    if (r._customHfBase > CONFIG.housingFundBaseMax) hfHit += ` <span class="hit">超上限，已截</span>`;
+    else if (r._customHfBase < CONFIG.housingFundBaseMin) hfHit += ` <span class="hit">低于下限，已提</span>`;
+  } else {
+    hfHit = hfProbe > CONFIG.housingFundBaseMax
+      ? ` <span class="hit">已触达上限</span>`
+      : hfProbe < CONFIG.housingFundBaseMin && hfProbe > 0
+        ? ` <span class="hit">低于下限，已按下限计</span>`
+        : ``;
+  }
   document.getElementById('baseNote').innerHTML =
     `社保基数 ${fmt(r.socialBase)}${socialHit}，限额 ${fmt(CONFIG.socialBaseMin)} – ${fmt(CONFIG.socialBaseMax)}<br>` +
     `公积金基数 ${fmt(r.hfBase)}${hfHit}，限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}`;
@@ -695,6 +743,7 @@ function render(r) {
 // ================= 交互 =================
 const $salary = document.getElementById('salary');
 const $bonus  = document.getElementById('bonus');
+const $hfBase = document.getElementById('hfBase');
 const $bonusMonth = document.getElementById('bonusMonth');
 const $bonusModeWrap = document.getElementById('bonusMode');
 
@@ -718,24 +767,42 @@ $bonusModeWrap.addEventListener('click', e => {
 function readInputs() {
   const s = parseFloat($salary.value) || 0;
   const b = parseFloat($bonus.value)  || 0;
+  const h = parseFloat($hfBase.value); // 空 / NaN 表示自动
   return {
     monthly: Math.max(0, s),
     bonus:   Math.max(0, b),
     mode:    bonusMode,
     bonusMonth: parseInt($bonusMonth.value, 10),
+    customHfBase: (isFinite(h) && h > 0) ? h : null,
   };
 }
 
 function saveAndRecalc() {
   const input = readInputs();
   try {
-    localStorage.setItem('salaryCalc', JSON.stringify({ ...input, bonusMode }));
+    localStorage.setItem('salaryCalc', JSON.stringify({ ...input, bonusMode, bonusMultiplier }));
   } catch (e) {}
   if (input.monthly <= 0) {
     document.getElementById('annualNet').textContent = '—';
     return;
   }
   render(calculate(input));
+}
+
+// 年终奖倍数（null 表示自由输入模式，数字表示 "= 月薪 × N"）
+let bonusMultiplier = null;
+const $bonusQuick = document.getElementById('bonusQuick');
+
+function updateBonusFromMultiplier() {
+  if (bonusMultiplier == null) return;
+  const s = parseFloat($salary.value) || 0;
+  $bonus.value = round2(s * bonusMultiplier);
+}
+function highlightQuickButton() {
+  [...$bonusQuick.children].forEach(b => {
+    const m = parseFloat(b.dataset.m);
+    b.classList.toggle('active', bonusMultiplier != null && m === bonusMultiplier);
+  });
 }
 
 // 恢复上次输入
@@ -745,6 +812,11 @@ try {
     if (typeof saved.monthly === 'number')    $salary.value = saved.monthly;
     if (typeof saved.bonus === 'number')      $bonus.value = saved.bonus;
     if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
+    if (typeof saved.customHfBase === 'number') $hfBase.value = saved.customHfBase;
+    if (typeof saved.bonusMultiplier === 'number') {
+      bonusMultiplier = saved.bonusMultiplier;
+      highlightQuickButton();
+    }
     if (saved.bonusMode) {
       bonusMode = saved.bonusMode;
       [...$bonusModeWrap.children].forEach(b =>
@@ -753,17 +825,29 @@ try {
   }
 } catch (e) {}
 
-$salary.addEventListener('input', saveAndRecalc);
-$bonus.addEventListener('input', saveAndRecalc);
+// 月薪变化：如果处于倍数模式，同步更新年终奖
+$salary.addEventListener('input', () => {
+  updateBonusFromMultiplier();
+  saveAndRecalc();
+});
+// 手动改年终奖：退出倍数模式
+$bonus.addEventListener('input', () => {
+  bonusMultiplier = null;
+  highlightQuickButton();
+  saveAndRecalc();
+});
+$hfBase.addEventListener('input', saveAndRecalc);
 $bonusMonth.addEventListener('change', saveAndRecalc);
 
-// 年终奖快捷按钮：月薪 × N
-document.getElementById('bonusQuick').addEventListener('click', e => {
+// 年终奖快捷按钮：月薪 × N，并记录倍数
+$bonusQuick.addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
   const mult = parseFloat(btn.dataset.m);
-  const s = parseFloat($salary.value) || 0;
-  $bonus.value = round2(s * mult);
+  bonusMultiplier = mult === 0 ? null : mult;
+  updateBonusFromMultiplier();
+  if (mult === 0) $bonus.value = '0';
+  highlightQuickButton();
   saveAndRecalc();
 });
 
