@@ -230,6 +230,37 @@
     opacity: .7;
   }
 
+  /* 月度速览横条 */
+  .monthly-glance {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .mg-item {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .mg-v {
+    font-size: 22px;
+    font-weight: 700;
+    color: #3B8CF5;
+    line-height: 1.1;
+  }
+  .mg-t {
+    font-size: 12px;
+    color: #555;
+    margin-top: 6px;
+  }
+  .mg-note {
+    color: #999;
+    font-size: 11px;
+    margin-left: 2px;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -329,6 +360,18 @@
       <span class="big-label">到手年薪</span>
     </div>
     <div class="summary-grid" id="summaryGrid"></div>
+  </div>
+
+  <!-- 月度速览 -->
+  <div class="monthly-glance">
+    <div class="mg-item">
+      <div class="mg-v" id="avgCash">—</div>
+      <div class="mg-t">平均到手月薪 <span class="mg-note">不含年终</span></div>
+    </div>
+    <div class="mg-item">
+      <div class="mg-v" id="avgReal">—</div>
+      <div class="mg-t">月含公积金 <span class="mg-note">不含年终</span></div>
+    </div>
   </div>
 
   <!-- 五险一金 -->
@@ -521,6 +564,21 @@ const pct = x => {
 function render(r) {
   document.getElementById('annualNet').textContent = fmt(r.annualNet);
 
+  // 月度速览：不含年终奖的平均到手
+  // 直接重算一次 bonus=0 的场景，结果最精确（避开两种计税方式的反推误差）
+  const salaryOnly = r.annualBonus > 0
+    ? calculate({
+        monthly: (r.annualGross - r.annualBonus) / 12,
+        bonus: 0,
+        mode: r.mode,
+        bonusMonth: r.bonusMonth,
+      })
+    : r;
+  const avgCash = round2(salaryOnly.annualNet / 12);
+  const avgReal = round2(avgCash + salaryOnly.ann.housingFundTotal / 12);
+  document.getElementById('avgCash').textContent = fmt(avgCash);
+  document.getElementById('avgReal').textContent = fmt(avgReal);
+
   // 前两排（有无年终奖都相同）
   // 实得年薪 = 年到手 + 个人公积金 + 公司公积金
   // （年到手是现金流，公积金虽然进账户但也是你的钱，所以全部加回）
@@ -538,8 +596,8 @@ function render(r) {
     ['公积金合计', r.ann.housingFundTotal],
   ];
 
-  // 第三排：仅当有年终奖时显示
-  if (r.annualBonus > 0) {
+  // 第三排：年终奖相关（始终显示，即使年终奖为 0）
+  {
     // 计算另一种计税方式下的年到手，用于对比
     const otherMode = r.mode === 'separate' ? 'combined' : 'separate';
     const other = calculate({
@@ -549,10 +607,10 @@ function render(r) {
       bonusMonth: r.bonusMonth || 12,
     });
     const diff = round2(r.annualNet - other.annualNet);
-    // diff > 0：当前方式更省；diff < 0：另一种更省
-    items.push(['年终奖',      r.annualBonus]);
-    items.push(['工资个税',    r.salaryTax]);
-    items.push(['年终奖个税',  r.bonusTax]);
+    const hasBonus = r.annualBonus > 0;
+    items.push(['年终奖',      hasBonus ? r.annualBonus : null]);
+    items.push(['工资个税',    hasBonus ? r.salaryTax  : null]);
+    items.push(['年终奖个税',  hasBonus ? r.bonusTax   : null]);
     items.push({
       compare: true,
       currentLabel: r.mode === 'separate' ? '单独计税' : '并入综合',
