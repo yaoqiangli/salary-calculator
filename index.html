@@ -219,6 +219,30 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* 计税方式对比格 */
+  .summary-grid .item.compare .v {
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .summary-grid .item.compare .t {
+    font-size: 10px;
+    margin-top: 3px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    background: rgba(255,255,255,.2);
+    opacity: 1;
+  }
+  .summary-grid .item.compare.clickable {
+    cursor: pointer;
+  }
+  .summary-grid .item.compare.clickable .t {
+    background: #FFB020;
+    color: #fff;
+    font-weight: 600;
+  }
+  .summary-grid .item.compare.clickable:active {
+    opacity: .7;
+  }
 
   table {
     width: 100%;
@@ -272,7 +296,7 @@
 
 <div class="hero">
   <h1>上海工资计算器</h1>
-  <div class="sub">2024 上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
+  <div class="sub">2025 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
 
   <div class="field">
     <label>税前月薪（元）</label>
@@ -347,16 +371,22 @@
     </table>
   </div>
 
-  <div class="hint">数值仅供参考 · 计算规则来源于上海 2024 年度官方标准</div>
+  <div class="hint">仅供参考 · 按上海 2025 年度标准（2025-07-01 起）</div>
 </div>
 
 <script>
 // ================= 配置（对应 Swift SalaryConfig.swift） =================
+// 数据来源：
+//  - 社保基数：上海市人社局 2025-09-18 公告，自 2025-07-01 起执行
+//  - 公积金基数：沪公积金管委会〔2025〕8 号，自 2025-07-01 起执行
+//  - 全口径城镇单位就业人员平均工资：12434 元/月（2024 年度）
 const CONFIG = {
-  socialBaseMin: 7384,
-  socialBaseMax: 36921,
+  // 社保（养老/医疗/失业/工伤/生育）基数
+  socialBaseMin: 7460,
+  socialBaseMax: 37302,
+  // 公积金基数（下限参照最低工资 2690，未变；上限同社保）
   housingFundBaseMin: 2690,
-  housingFundBaseMax: 36921,
+  housingFundBaseMax: 37302,
   taxThresholdMonthly: 5000,
   insurance: [
     { name: '养老保险',   personal: 0.08,  company: 0.16  },
@@ -473,6 +503,7 @@ function calculate({ monthly, bonus, mode, bonusMonth }) {
   return {
     insurance, personalTotal, companyTotal,
     socialBase, hfBase,
+    bonusMonth: bm,
     monthly: monthlyDetails,
     annualTax, salaryTax, bonusTax: separateBonusTax, annualNet,
     annualGross: round2(monthly * 12 + bonus),
@@ -504,26 +535,78 @@ const pct = x => {
 function render(r) {
   document.getElementById('annualNet').textContent = fmt(r.annualNet);
 
+  // 前两排（有无年终奖都相同）
   const items = [
-    ['年度缴税',   r.annualTax],
+    // 第一排：总收入 → 税
     ['税前年薪',   r.annualGross],
+    ['年度缴税',   r.annualTax],
+    ['个人公积金', r.ann.housingFund],
+    ['公司公积金', r.ann.housingFundCompany],
+    // 第二排：五险一金（个人承担）
     ['养老保险',   r.ann.pension],
     ['医疗保险',   r.ann.medical],
     ['失业保险',   r.ann.unemploy],
-    ['个人公积金', r.ann.housingFund],
-    ['公司公积金', r.ann.housingFundCompany],
     ['公积金合计', r.ann.housingFundTotal],
   ];
+
+  // 第三排：仅当有年终奖时显示
   if (r.annualBonus > 0) {
-    items.push(['年终奖', r.annualBonus]);
-    items.push(['工资个税', r.salaryTax]);
-    items.push(['年终奖个税', r.bonusTax]);
-    items.push([r.mode === 'separate' ? '单独计税' : '并入综合', null]);
+    // 计算另一种计税方式下的年到手，用于对比
+    const otherMode = r.mode === 'separate' ? 'combined' : 'separate';
+    const other = calculate({
+      monthly: (r.annualGross - r.annualBonus) / 12,
+      bonus: r.annualBonus,
+      mode: otherMode,
+      bonusMonth: r.bonusMonth || 12,
+    });
+    const diff = round2(r.annualNet - other.annualNet);
+    // diff > 0：当前方式更省；diff < 0：另一种更省
+    items.push(['年终奖',      r.annualBonus]);
+    items.push(['工资个税',    r.salaryTax]);
+    items.push(['年终奖个税',  r.bonusTax]);
+    items.push({
+      compare: true,
+      currentLabel: r.mode === 'separate' ? '单独计税' : '并入综合',
+      diff: diff,
+      otherMode: otherMode,
+    });
   }
   const grid = document.getElementById('summaryGrid');
-  grid.innerHTML = items.map(([t, v]) =>
-    `<div class="item"><div class="v">${v === null ? '—' : fmt(v)}</div><div class="t">${t}</div></div>`
-  ).join('');
+  grid.innerHTML = items.map(it => {
+    // 对比格：可点击切换计税方式
+    if (it && it.compare) {
+      const absDiff = Math.abs(it.diff);
+      let tip;
+      if (absDiff < 1) {
+        tip = '两种方式相同';
+      } else if (it.diff > 0) {
+        // 当前方式比另一种多拿 → 当前更划算
+        tip = `已省 ${fmt(absDiff)}`;
+      } else {
+        // 另一种更划算
+        tip = `切换可多 ${fmt(absDiff)}`;
+      }
+      const clickable = absDiff >= 1 && it.diff < 0;
+      return `<div class="item compare ${clickable ? 'clickable' : ''}" data-other="${it.otherMode}">
+        <div class="v">${it.currentLabel}</div>
+        <div class="t">${tip}</div>
+      </div>`;
+    }
+    const [t, v] = it;
+    return `<div class="item"><div class="v">${v === null ? '—' : fmt(v)}</div><div class="t">${t}</div></div>`;
+  }).join('');
+
+  // 绑定点击切换
+  const clickableCompare = grid.querySelector('.item.compare.clickable');
+  if (clickableCompare) {
+    clickableCompare.addEventListener('click', () => {
+      const next = clickableCompare.dataset.other;
+      bonusMode = next;
+      [...$bonusModeWrap.children].forEach(b =>
+        b.classList.toggle('active', b.dataset.v === next));
+      saveAndRecalc();
+    });
+  }
 
   document.getElementById('insuranceBody').innerHTML = r.insurance.map(i =>
     `<tr>
@@ -572,7 +655,7 @@ const $bonusModeWrap = document.getElementById('bonusMode');
 for (let i = 1; i <= 12; i++) {
   const opt = document.createElement('option');
   opt.value = i; opt.textContent = `${i} 月`;
-  if (i === 12) opt.selected = true;
+  if (i === 2) opt.selected = true;
   $bonusMonth.appendChild(opt);
 }
 
