@@ -536,12 +536,15 @@ function render(r) {
   document.getElementById('annualNet').textContent = fmt(r.annualNet);
 
   // 前两排（有无年终奖都相同）
+  // 实得年薪 = 年到手 + 个人公积金 + 公司公积金
+  // （年到手是现金流，公积金虽然进账户但也是你的钱，所以全部加回）
+  const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
   const items = [
-    // 第一排：总收入 → 税
+    // 第一排：总收入 → 实得 → 税 → 个人公积金
     ['税前年薪',   r.annualGross],
+    ['实得年薪',   realIncome],
     ['年度缴税',   r.annualTax],
     ['个人公积金', r.ann.housingFund],
-    ['公司公积金', r.ann.housingFundCompany],
     // 第二排：五险一金（个人承担）
     ['养老保险',   r.ann.pension],
     ['医疗保险',   r.ann.medical],
