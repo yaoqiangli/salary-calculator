@@ -444,6 +444,8 @@
   }
   .monthly-table td:nth-child(1), .monthly-table th:nth-child(1) { justify-self: start; }
   .monthly-table td:nth-child(n+2), .monthly-table th:nth-child(n+2) { justify-self: center; }
+  /* 月份数据列右对齐（1月/12月末位对齐） */
+  .monthly-table td:nth-child(1) .mc-month { text-align: right; }
   /* 统一数据单元格宽度，保证各行列位置一致（同 .amt-cell 思路）
      min-width 须覆盖"年终奖并入月"的大数字（可能 200,000+） */
   .monthly-table .mc-num { display: inline-block; min-width: 72px; text-align: right; }
