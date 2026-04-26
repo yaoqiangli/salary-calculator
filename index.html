@@ -465,6 +465,10 @@ function calculate({ monthly, bonus, mode, bonusMonth }) {
     const i = insurance.find(x => x.name === name);
     return round2((i ? i.personalAmount : 0) * 12);
   };
+  const annCompany = name => {
+    const i = insurance.find(x => x.name === name);
+    return round2((i ? i.companyAmount : 0) * 12);
+  };
 
   return {
     insurance, personalTotal, companyTotal,
@@ -480,7 +484,9 @@ function calculate({ monthly, bonus, mode, bonusMonth }) {
       unemploy:    ann('失业保险'),
       injury:      ann('工伤保险'),
       maternity:   ann('生育保险'),
-      housingFund: ann('住房公积金'),
+      housingFund:        ann('住房公积金'),
+      housingFundCompany: annCompany('住房公积金'),
+      housingFundTotal:   round2(ann('住房公积金') + annCompany('住房公积金')),
     }
   };
 }
@@ -499,14 +505,14 @@ function render(r) {
   document.getElementById('annualNet').textContent = fmt(r.annualNet);
 
   const items = [
-    ['年度缴税', r.annualTax],
+    ['年度缴税',   r.annualTax],
+    ['税前年薪',   r.annualGross],
+    ['养老保险',   r.ann.pension],
+    ['医疗保险',   r.ann.medical],
+    ['失业保险',   r.ann.unemploy],
     ['个人公积金', r.ann.housingFund],
-    ['养老保险', r.ann.pension],
-    ['医疗保险', r.ann.medical],
-    ['失业保险', r.ann.unemploy],
-    ['工伤保险', r.ann.injury],
-    ['生育保险', r.ann.maternity],
-    ['税前年薪', r.annualGross],
+    ['公司公积金', r.ann.housingFundCompany],
+    ['公积金合计', r.ann.housingFundTotal],
   ];
   if (r.annualBonus > 0) {
     items.push(['年终奖', r.annualBonus]);
@@ -533,18 +539,18 @@ function render(r) {
   // 基数说明：显示 clamp 规则，且高亮是否触达上/下限
   const gross = r.annualGross ? (r.annualGross - r.annualBonus) / 12 : 0;
   const socialHit = gross > CONFIG.socialBaseMax
-    ? `<span class="hit">已触达上限 ${fmt(CONFIG.socialBaseMax)}</span>`
+    ? ` <span class="hit">已触达上限</span>`
     : gross < CONFIG.socialBaseMin && gross > 0
-      ? `<span class="hit">低于下限，按下限 ${fmt(CONFIG.socialBaseMin)} 计</span>`
-      : `按实际月薪`;
+      ? ` <span class="hit">低于下限，已按下限计</span>`
+      : ``;
   const hfHit = gross > CONFIG.housingFundBaseMax
-    ? `<span class="hit">已触达上限 ${fmt(CONFIG.housingFundBaseMax)}</span>`
+    ? ` <span class="hit">已触达上限</span>`
     : gross < CONFIG.housingFundBaseMin && gross > 0
-      ? `<span class="hit">低于下限，按下限 ${fmt(CONFIG.housingFundBaseMin)} 计</span>`
-      : `按实际月薪`;
+      ? ` <span class="hit">低于下限，已按下限计</span>`
+      : ``;
   document.getElementById('baseNote').innerHTML =
-    `社保基数（养老/医疗/失业/工伤/生育）：${fmt(r.socialBase)}（${socialHit}；区间 ${fmt(CONFIG.socialBaseMin)}–${fmt(CONFIG.socialBaseMax)}）<br>` +
-    `公积金基数：${fmt(r.hfBase)}（${hfHit}；区间 ${fmt(CONFIG.housingFundBaseMin)}–${fmt(CONFIG.housingFundBaseMax)}）`;
+    `社保基数 ${fmt(r.socialBase)}${socialHit}，限额 ${fmt(CONFIG.socialBaseMin)} – ${fmt(CONFIG.socialBaseMax)}<br>` +
+    `公积金基数 ${fmt(r.hfBase)}${hfHit}，限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}`;
 
   document.getElementById('monthlyBody').innerHTML = r.monthly.map(m =>
     `<tr>
