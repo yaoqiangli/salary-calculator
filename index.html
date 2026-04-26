@@ -18,6 +18,10 @@
     color: #222;
     -webkit-font-smoothing: antialiased;
   }
+  /* 全局字体统一：表单控件、按钮、table 等都继承 body 字体 */
+  input, button, select, textarea, table, th, td {
+    font-family: inherit;
+  }
   /* 顶部标题（独立，只负责标题） */
   .hero {
     background: linear-gradient(135deg, #3B8CF5 0%, #66B3FF 100%);
@@ -394,7 +398,7 @@
     background: #f8fafd;
   }
   .ins-table .total-row td {
-    font-weight: 600;
+    font-weight: 500;
     color: #222;
     padding: 12px 0;
   }
@@ -414,7 +418,7 @@
     min-width: 32px;
     text-align: right;
   }
-  /* 表头的 amt-cell：文字居中对齐，不走右对齐 */
+  /* 表头的 amt-cell：文字居中对齐 */
   .ins-table th .amt-cell .amt { text-align: center; }
   .ins-table th .amt-cell .pct { text-align: center; }
 
@@ -440,14 +444,17 @@
   }
   .monthly-table td:nth-child(1), .monthly-table th:nth-child(1) { justify-self: start; }
   .monthly-table td:nth-child(n+2), .monthly-table th:nth-child(n+2) { justify-self: center; }
-  /* 统一数据单元格宽度，保证各行列位置一致（同 .amt-cell 思路） */
-  .monthly-table .mc-num { display: inline-block; min-width: 58px; text-align: right; }
+  /* 统一数据单元格宽度，保证各行列位置一致（同 .amt-cell 思路）
+     min-width 须覆盖"年终奖并入月"的大数字（可能 200,000+） */
+  .monthly-table .mc-num { display: inline-block; min-width: 72px; text-align: right; }
   .monthly-table .mc-rate { display: inline-block; min-width: 34px; text-align: right; }
   .monthly-table .mc-month { display: inline-block; min-width: 30px; }
-  /* 表头里同样的 span 改为居中，和数据块中心对齐 */
+  /* 表头里同样的 span 改为居中 */
   .monthly-table th .mc-num,
   .monthly-table th .mc-rate,
-  .monthly-table th .mc-month { text-align: center; }
+  .monthly-table th .mc-month {
+    text-align: center;
+  }
   .monthly-table th {
     color: #3B8CF5;
     font-weight: 500;
@@ -464,6 +471,25 @@
     background: #f8fafd;
   }
   .muted { color: #888; font-size: 11px; }
+  /* 数字保留等宽特性，但仍用系统字体（好看 + 对齐）
+     tabular-nums 让 0-9 每位宽度一致，不同字重之间也对齐 */
+  .n,
+  .ins-table .amt-cell,
+  .ins-table td:nth-child(2),       /* 基数列（只对 td，不影响 th） */
+  .monthly-table .mc-num,
+  .monthly-table .mc-rate,
+  .base-note .bn-val,
+  .base-note .bn-limit,
+  .mg-v,
+  .summary .big {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  /* summary-grid 里是混合内容（数字 + 文字标签） */
+  .summary-grid .v {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
   /* 税率列交替色：相邻的不同税率档用深浅色区分，同一档保持一致 */
   .rate-a { color: #222; }
   .rate-b { color: #888; }
@@ -828,6 +854,8 @@ const fmt = x => {
   if (!isFinite(x)) return '—';
   return x.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 };
+// 带等宽字体包装的版本，用于 innerHTML 场景
+const nfmt = x => `<span class="n">${fmt(x)}</span>`;
 const pct = x => {
   const v = x * 100;
   if (Math.abs(v - Math.round(v)) < 1e-9) return `${Math.round(v)}%`;
@@ -1004,6 +1032,38 @@ const $syncBase = document.getElementById('syncBase');
 const $bonusMonth = document.getElementById('bonusMonth');
 const $bonusModeWrap = document.getElementById('bonusMode');
 
+// ---- 千分位格式化：输入框失焦时把 60000 → 60,000；聚焦时还原成 60000 方便编辑 ----
+function stripCommas(s) { return (s || '').replace(/,/g, ''); }
+function addCommas(s) {
+  const raw = stripCommas(s).trim();
+  if (raw === '') return '';
+  const n = parseFloat(raw);
+  if (!isFinite(n)) return raw;
+  // 保留用户输入的小数位（最多 2 位）
+  const parts = raw.split('.');
+  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return parts.length > 1 ? `${intPart}.${parts[1].slice(0, 2)}` : intPart;
+}
+function attachCommaFormat($el) {
+  // 初始进入时如果已有数字，直接加逗号
+  if ($el.value && !$el.classList.contains('auto-value')) {
+    $el.value = addCommas($el.value);
+  }
+  $el.addEventListener('focus', () => {
+    // 聚焦时去掉逗号（也不影响 auto-value 的清空逻辑）
+    if (!$el.classList.contains('auto-value')) {
+      $el.value = stripCommas($el.value);
+    }
+  });
+  $el.addEventListener('blur', () => {
+    if (!$el.classList.contains('auto-value') && $el.value.trim() !== '') {
+      $el.value = addCommas($el.value);
+    }
+  });
+}
+// 4 个金额输入框都启用
+[$salary, $bonus, $socialBase, $hfBase].forEach(attachCommaFormat);
+
 // 月份下拉
 for (let i = 1; i <= 12; i++) {
   const opt = document.createElement('option');
@@ -1022,11 +1082,11 @@ $bonusModeWrap.addEventListener('click', e => {
 });
 
 function readInputs() {
-  const s = parseFloat($salary.value) || 0;
-  const b = parseFloat($bonus.value)  || 0;
+  const s = parseFloat(stripCommas($salary.value)) || 0;
+  const b = parseFloat(stripCommas($bonus.value))  || 0;
   // 基数只有在 input 被标记为真实输入时才作为自定义值使用，否则视为 null（跟随月薪）
-  const sbRaw = $socialBase.dataset.user === 'true' ? parseFloat($socialBase.value) : NaN;
-  const hbRaw = $hfBase.dataset.user === 'true'     ? parseFloat($hfBase.value)     : NaN;
+  const sbRaw = $socialBase.dataset.user === 'true' ? parseFloat(stripCommas($socialBase.value)) : NaN;
+  const hbRaw = $hfBase.dataset.user === 'true'     ? parseFloat(stripCommas($hfBase.value))     : NaN;
   return {
     monthly: Math.max(0, s),
     bonus:   Math.max(0, b),
@@ -1041,7 +1101,7 @@ function readInputs() {
 function fillBaseShadow(r) {
   function setShadow($el, shadow) {
     if ($el.dataset.user === 'true') return; // 用户已输入，不覆盖
-    $el.value = shadow > 0 ? String(shadow) : '';
+    $el.value = shadow > 0 ? addCommas(String(shadow)) : '';
     $el.classList.add('auto-value');
   }
   setShadow($socialBase, r.socialIsCustom ? 0 : r.socialBase);
@@ -1064,8 +1124,10 @@ const $bonusQuick = document.getElementById('bonusQuick');
 
 function updateBonusFromMultiplier() {
   if (bonusMultiplier == null) return;
-  const s = parseFloat($salary.value) || 0;
-  $bonus.value = round2(s * bonusMultiplier);
+  const s = parseFloat(stripCommas($salary.value)) || 0;
+  const bonusVal = round2(s * bonusMultiplier);
+  // 失焦状态下显示千分位
+  $bonus.value = document.activeElement === $bonus ? String(bonusVal) : addCommas(String(bonusVal));
 }
 function highlightQuickButton() {
   [...$bonusQuick.children].forEach(b => {
@@ -1078,15 +1140,15 @@ function highlightQuickButton() {
 try {
   const saved = JSON.parse(localStorage.getItem('salaryCalc') || 'null');
   if (saved) {
-    if (typeof saved.monthly === 'number')    $salary.value = saved.monthly;
-    if (typeof saved.bonus === 'number')      $bonus.value = saved.bonus;
+    if (typeof saved.monthly === 'number')    $salary.value = String(saved.monthly);
+    if (typeof saved.bonus === 'number')      $bonus.value = String(saved.bonus);
     if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
     if (typeof saved.customSocialBase === 'number') {
-      $socialBase.value = saved.customSocialBase;
+      $socialBase.value = String(saved.customSocialBase);
       $socialBase.dataset.user = 'true';
     }
     if (typeof saved.customHfBase === 'number') {
-      $hfBase.value = saved.customHfBase;
+      $hfBase.value = String(saved.customHfBase);
       $hfBase.dataset.user = 'true';
     }
     if (typeof saved.bonusMultiplier === 'number') {
@@ -1099,6 +1161,12 @@ try {
         b.classList.toggle('active', b.dataset.v === bonusMode));
     }
   }
+  // 恢复后重新加千分位（因为 value 被覆盖）
+  [$salary, $bonus, $socialBase, $hfBase].forEach($el => {
+    if ($el.value && !$el.classList.contains('auto-value')) {
+      $el.value = addCommas($el.value);
+    }
+  });
 } catch (e) {}
 
 // 月薪变化：年终奖按倍数同步；基数字段**若为空（即跟随月薪）**也不用动（计算时自动跟随）
