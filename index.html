@@ -890,11 +890,22 @@ function render(r) {
   // 实得年薪 = 年到手 + 个人公积金 + 公司公积金
   // （年到手是现金流，公积金虽然进账户但也是你的钱，所以全部加回）
   const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
+  // 年终奖到手 = 年终奖 - 年终奖个税
+  //  - separate 模式：r.bonusTax 就是年终奖单独计税的税额
+  //  - combined 模式：年终奖并入月薪一起累计预扣，无法单独拆出，用"并入 - 不并入"的年到手差值近似
+  let bonusNet = 0;
+  if (r.annualBonus > 0) {
+    if (r.mode === 'separate') {
+      bonusNet = round2(r.annualBonus - r.bonusTax);
+    } else {
+      bonusNet = round2(r.annualNet - salaryOnly.annualNet);
+    }
+  }
   const items = [
-    // 第一排：总收入 → 实得 → 税 → 个人公积金
+    // 第一排：总收入 → 实得 → 年终奖到手 → 个人公积金
     ['税前年薪',   r.annualGross],
     ['含公积金年薪',   realIncome],
-    ['年度缴税',   r.annualTax],
+    ['年终奖到手', r.annualBonus > 0 ? bonusNet : null],
     ['个人公积金', r.ann.housingFund],
     // 第二排：五险一金（个人承担）
     ['养老保险',   r.ann.pension],
