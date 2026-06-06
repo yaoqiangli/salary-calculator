@@ -60,6 +60,11 @@
   .input-card > *:last-child {
     margin-bottom: 0;
   }
+  /* 单行控件字段（标题与控件同处一行，如「公积金缴存比例」）本身只占一行，
+     下方 18px 夹在两行纯文字间会显空，故收紧到 10px */
+  .input-card > .field-inline {
+    margin-bottom: 10px;
+  }
 
   .field {
     margin-bottom: 0;   /* 由上面的 > 选择器统一控制 */
@@ -179,16 +184,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 13px;
+    font-size: 12px;       /* 与 .field label 统一 */
     color: #555;
-    margin-top: 4px;
   }
   .inline-row select {
     background: #F1F3F6;
     color: #222;
     border: none;
     font-size: 13px;
-    padding: 6px 10px;
+    padding: 3px 10px;
     border-radius: 8px;
     -webkit-appearance: none;
     appearance: none;
@@ -431,7 +435,8 @@
   .monthly-table tr {
     display: grid;
     /* 5 列固定比例，保证每行列位置一致 */
-    grid-template-columns: 40px 1fr 60px 1fr 1fr;
+    /* 个税列用 auto 贴合内容（数值小），不占整份 1fr，避免空旷显宽 */
+    grid-template-columns: 40px 1fr 44px auto 1fr;
     align-items: baseline;
     border-bottom: 1px solid #eee;
     gap: 12px;
@@ -533,6 +538,85 @@
     margin-left: 4px;
   }
 
+  /* 卡片标题右侧按钮（如"保存当前方案"） */
+  .card-title .title-btn {
+    margin-left: auto;
+    background: #EEF3FA;
+    border: 1px solid #CFDEF3;
+    color: #3B8CF5;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 10px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .card-title .title-btn:active { background: #DCE7F5; }
+
+  /* 方案对比表 */
+  .compare-empty {
+    color: #aaa;
+    font-size: 12px;
+    text-align: center;
+    padding: 16px 6px;
+    line-height: 1.7;
+  }
+  .compare-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .compare-table { border-collapse: collapse; font-size: 12px; min-width: 100%; }
+  .compare-table th, .compare-table td {
+    padding: 9px 10px;
+    white-space: nowrap;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .compare-table thead th {
+    color: #3B8CF5; font-weight: 600;
+    text-align: right; vertical-align: bottom;
+  }
+  .compare-table th:first-child, .compare-table td:first-child {
+    text-align: left; color: #666; font-weight: 500;
+    position: sticky; left: 0; background: #fff; z-index: 1;
+  }
+  .compare-table .plan-del {
+    display: inline-block; margin-left: 6px;
+    color: #ccc; cursor: pointer; font-size: 14px; line-height: 1;
+  }
+  .compare-table .plan-del:active { color: #EF4444; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .best { color: #16a34a; font-weight: 700; }
+  .compare-table .cell-sub { font-size: 10px; color: #999; font-weight: 400; margin-top: 2px; }
+  .compare-table .sub-row td, .compare-table .sub-row th { color: #999; }
+  .compare-hint { color: #bbb; font-size: 11px; margin-top: 10px; text-align: center; }
+
+  /* 公司成本环形图 */
+  .donut-wrap { display: flex; align-items: center; gap: clamp(8px, 3vw, 16px); }
+  /* 扇形随屏宽自适应缩放（不再写死 150px），aspect-ratio 锁定正圆、避免变椭圆 */
+  .donut-chart { flex: 0 0 auto; position: relative; width: clamp(140px, 40vw, 180px); aspect-ratio: 1; }
+  .donut-chart svg { width: 100%; height: 100%; display: block; }  /* 跟随容器缩放，viewBox 自适应 */
+  .donut-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    pointer-events: none;
+  }
+  .donut-center .dc-v { font-size: 18px; font-weight: 700; color: #222; }
+  .donut-center .dc-t { font-size: 10px; color: #999; margin-top: 2px; }
+  .donut-legend { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .donut-legend .lg-item { display: flex; align-items: center; font-size: 11px; padding: 2px 5px; border-radius: 6px; cursor: pointer; transition: opacity .15s, background .15s; }
+  .donut-legend .lg-item.active { background: #EEF3FA; }
+  .donut-legend .lg-item.active .lg-label { color: #222; font-weight: 600; }
+  .cost-arc { cursor: pointer; transition: stroke-width .15s ease, stroke-opacity .15s ease; }
+  .donut-legend .lg-dot { width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; flex: 0 0 auto; }
+  /* 标签优先完整显示：取自然宽度、不截断；金额/百分比靠右成组 */
+  .donut-legend .lg-label { color: #555; flex: 0 0 auto; white-space: nowrap; }
+  .donut-legend .lg-val { color: #222; font-weight: 500; font-variant-numeric: tabular-nums; margin-left: auto; padding-left: 8px; text-align: right; white-space: nowrap; }
+  .donut-legend .lg-pct { color: #aaa; font-size: 10px; min-width: 30px; text-align: right; margin-left: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (max-width: 360px) {
+    /* 扇形尺寸与间距已由 clamp() 自适应，此处只收缩图例字号 */
+    .donut-legend .lg-item { font-size: 10px; }
+    .donut-legend .lg-val { font-size: 10px; }
+  }
+
   .hint {
     text-align: center;
     color: #aaa;
@@ -599,6 +683,14 @@
     </div>
   </div>
 
+  <!-- 公积金缴存比例（上海：单位与个人比例一致，5%~12%） -->
+  <div class="field field-inline">
+    <div class="inline-row">
+      <span>公积金缴存比例 <span class="field-hint">单位与个人一致</span></span>
+      <select id="hfRate"></select>
+    </div>
+  </div>
+
   <div class="field">
     <label>年终奖计税方式</label>
     <div class="segmented" id="bonusMode">
@@ -657,6 +749,41 @@
       </tfoot>
     </table>
     <div class="base-note" id="baseNote"></div>
+  </div>
+
+  <!-- 公司总成本 -->
+  <div class="card">
+    <div class="card-title">公司总成本</div>
+    <div class="monthly-glance" style="margin-bottom:16px">
+      <div class="mg-item">
+        <div class="mg-v" id="companyMonthCost">—</div>
+        <div class="mg-t">每月用工成本 <span class="mg-note">不含年终</span></div>
+      </div>
+      <div class="mg-item">
+        <div class="mg-v" id="companyYearCost">—</div>
+        <div class="mg-t">全年用工成本 <span class="mg-note">含年终</span></div>
+      </div>
+    </div>
+    <div class="donut-wrap">
+      <div class="donut-chart" id="costDonut"></div>
+      <div class="donut-legend" id="costLegend"></div>
+    </div>
+    <div class="base-note" id="companyCostNote"></div>
+  </div>
+
+  <!-- 方案对比 -->
+  <div class="card">
+    <div class="card-title">
+      方案对比
+      <button type="button" class="title-btn" id="savePlanBtn">+ 保存当前</button>
+    </div>
+    <div class="compare-empty" id="compareEmpty">
+      调整月薪 / 年终奖 / 公积金比例后，点击「保存当前」<br>即可把多个方案并排对比差距
+    </div>
+    <div class="compare-scroll">
+      <table class="compare-table" id="compareTable" style="display:none"></table>
+    </div>
+    <div class="compare-hint" id="compareHint" style="display:none">最多保存 4 个方案，超出会覆盖最早的一个</div>
   </div>
 
   <!-- 每月明细 -->
@@ -743,7 +870,9 @@ function bonusTaxSeparate(bonus) {
   return 0;
 }
 
-function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customHfBase }) {
+function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customHfBase, hfRate }) {
+  // 公积金缴存比例（单位与个人一致），未传则用默认 12%
+  const _hfRate = (hfRate != null && hfRate > 0) ? hfRate : 0.12;
   // 月薪 0 视为无效，基数全归 0（不强制按下限保底）
   const socialBase = (customSocialBase != null && customSocialBase > 0)
     ? clamp(customSocialBase, CONFIG.socialBaseMin, CONFIG.socialBaseMax)
@@ -764,13 +893,16 @@ function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customH
 
   const insurance = CONFIG.insurance.map(it => {
     const base = it.name === '住房公积金' ? hfBase : socialBase;
+    // 公积金比例可配：个人与公司同比例
+    const personalRate = it.name === '住房公积金' ? _hfRate : it.personal;
+    const companyRate  = it.name === '住房公积金' ? _hfRate : it.company;
     return {
       name: it.name,
       base: base,
-      personalRate: it.personal,
-      companyRate:  it.company,
-      personalAmount: round2(base * it.personal),
-      companyAmount:  round2(base * it.company),
+      personalRate: personalRate,
+      companyRate:  companyRate,
+      personalAmount: round2(base * personalRate),
+      companyAmount:  round2(base * companyRate),
     };
   });
   const personalTotal = round2(insurance.reduce((s, i) => s + i.personalAmount, 0));
@@ -832,7 +964,7 @@ function calculate({ monthly, bonus, mode, bonusMonth, customSocialBase, customH
   return {
     insurance, personalTotal, companyTotal,
     socialBase, hfBase, socialIsCustom, hfIsCustom,
-    _customSocialBase, _customHfBase,
+    _customSocialBase, _customHfBase, hfRate: _hfRate,
     bonusMonth: bm,
     monthly: monthlyDetails,
     annualTax, salaryTax, bonusTax: separateBonusTax, annualNet,
@@ -859,6 +991,12 @@ const fmt = x => {
 };
 // 带等宽字体包装的版本，用于 innerHTML 场景
 const nfmt = x => `<span class="n">${fmt(x)}</span>`;
+// 简短金额（用于图表中心）：≥1万 显示"xx.x万"
+const fmtShort = x => {
+  if (!isFinite(x)) return '—';
+  if (Math.abs(x) >= 10000) return `${(x / 10000).toFixed(1)}万`;
+  return Math.round(x).toLocaleString('zh-CN');
+};
 const pct = x => {
   const v = x * 100;
   if (Math.abs(v - Math.round(v)) < 1e-9) return `${Math.round(v)}%`;
@@ -879,6 +1017,7 @@ function render(r) {
         bonusMonth: r.bonusMonth,
         customSocialBase: r._customSocialBase,
         customHfBase: r._customHfBase,
+        hfRate: r.hfRate,
       })
     : r;
   const avgCash = round2(salaryOnly.annualNet / 12);
@@ -925,6 +1064,7 @@ function render(r) {
       bonusMonth: r.bonusMonth || 12,
       customSocialBase: r._customSocialBase,
       customHfBase: r._customHfBase,
+      hfRate: r.hfRate,
     });
     const diff = round2(r.annualNet - other.annualNet);
     const hasBonus = r.annualBonus > 0;
@@ -990,6 +1130,22 @@ function render(r) {
   document.getElementById('personalTotal').textContent = fmt(r.personalTotal);
   document.getElementById('companyTotal').textContent  = fmt(r.companyTotal);
 
+  // 公司总成本：税前工资 + 公司承担的五险一金
+  //  - 每月用工成本（不含年终）= 税前月薪 + 公司五险一金合计
+  //  - 全年用工成本（含年终）   = 税前年薪(含年终) + 公司五险一金 × 12
+  const baseMonthly = r.annualGross > 0 ? (r.annualGross - r.annualBonus) / 12 : 0;
+  const companyMonthCost = round2(baseMonthly + r.companyTotal);
+  const companyYearCost  = round2(r.annualGross + r.companyTotal * 12);
+  document.getElementById('companyMonthCost').textContent = fmt(companyMonthCost);
+  document.getElementById('companyYearCost').textContent  = fmt(companyYearCost);
+  document.getElementById('companyCostNote').innerHTML =
+    `<span class="bn-label">成本溢价</span>
+     <span class="bn-val">+${baseMonthly > 0 ? pct(r.companyTotal / baseMonthly) : '—'}</span>
+     <span class="bn-limit">公司每月额外承担五险一金 ${fmt(r.companyTotal)}</span>`;
+
+  // 公司总成本构成环形图
+  renderCostDonut(r, companyYearCost);
+
   // 基数说明：显示 clamp 规则，且高亮是否触达上/下限
   const gross = r.annualGross ? (r.annualGross - r.annualBonus) / 12 : 0;
 
@@ -1037,7 +1193,214 @@ function render(r) {
   }).join('');
 }
 
-// ================= 交互 =================
+// ================= 公司成本环形图 =================
+function renderCostDonut(r, total) {
+  const companyAnn = name => {
+    const i = r.insurance.find(x => x.name === name);
+    return i ? round2(i.companyAmount * 12) : 0;
+  };
+  const personalAnn = name => {
+    const i = r.insurance.find(x => x.name === name);
+    return i ? round2(i.personalAmount * 12) : 0;
+  };
+  // 税前年薪拆分：实际到手 + 个人社保（按险种拆开）+ 个人公积金 + 个税
+  const personalFund = r.ann.housingFund;
+  let segs = [
+    { label: '实际到手',   value: r.annualNet,            color: '#3B8CF5' },
+    { label: '个人公积金', value: personalFund,           color: '#818CF8' },
+    { label: '个人养老',   value: personalAnn('养老保险'), color: '#60A5FA' },
+    { label: '个人医疗',   value: personalAnn('医疗保险'), color: '#38BDF8' },
+    { label: '个人失业',   value: personalAnn('失业保险'), color: '#7DD3FC' },
+    { label: '个税',       value: r.annualTax,            color: '#94A3B8' },
+    { label: '公司养老',   value: companyAnn('养老保险'),  color: '#F59E0B' },
+    { label: '公司医疗',   value: companyAnn('医疗保险'),  color: '#10B981' },
+    { label: '公司公积金', value: companyAnn('住房公积金'), color: '#8B5CF6' },
+    { label: '公司失业',   value: companyAnn('失业保险'),  color: '#EF4444' },
+    { label: '公司工伤',   value: companyAnn('工伤保险'),  color: '#06B6D4' },
+    { label: '公司生育',   value: companyAnn('生育保险'),  color: '#EC4899' },
+  ].filter(s => s.value > 0);
+
+  // 排序规则：把"实际到手 + 公积金（个人+公司）"作为归个人的钱放在最前并相邻，
+  // 公积金组内大的在前；其余项目整体按金额从大到小排。
+  const FUND = ['个人公积金', '公司公积金'];
+  const cash = segs.find(s => s.label === '实际到手');
+  const funds = segs.filter(s => FUND.includes(s.label)).sort((a, b) => b.value - a.value);
+  const rest = segs
+    .filter(s => s.label !== '实际到手' && !FUND.includes(s.label))
+    .sort((a, b) => b.value - a.value);
+  segs = [...(cash ? [cash] : []), ...funds, ...rest];
+
+  // 存入模块状态，交由 drawCostDonut 渲染（点击高亮时复用，无需重算）
+  costSegs = segs;
+  costTotal = total;
+  if (costActiveIdx != null && costActiveIdx >= segs.length) costActiveIdx = null;
+  drawCostDonut();
+}
+
+// 当前高亮的扇形索引（null 表示无）
+let costSegs = [], costTotal = 0, costActiveIdx = null;
+
+function drawCostDonut() {
+  const segs = costSegs;
+  const $donut = document.getElementById('costDonut');
+  const $legend = document.getElementById('costLegend');
+  if (!$donut || !$legend) return;
+
+  const sum = segs.reduce((s, x) => s + x.value, 0);
+  if (sum <= 0) {
+    $donut.innerHTML = '';
+    $legend.innerHTML = '<div class="lg-item" style="color:#bbb">暂无数据，请先输入月薪</div>';
+    return;
+  }
+
+  const size = 180, baseStroke = 30, activeStroke = 40;
+  const radius = (size - activeStroke) / 2, cx = size / 2, cy = size / 2;
+  const C = 2 * Math.PI * radius;
+  let offset = 0;
+  const arcs = segs.map((seg, i) => {
+    const len = (seg.value / sum) * C;
+    const active = costActiveIdx === i;
+    const dim = costActiveIdx != null && !active;
+    const sw = active ? activeStroke : baseStroke;
+    const op = dim ? 0.3 : 1;
+    const c = `<circle class="cost-arc" data-idx="${i}" cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="${seg.color}" stroke-width="${sw}" stroke-opacity="${op}" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"></circle>`;
+    offset += len;
+    return c;
+  }).join('');
+
+  // 圆环中心：未选中显示总成本，选中则显示该项明细
+  let centerV, centerT;
+  if (costActiveIdx != null && segs[costActiveIdx]) {
+    const s = segs[costActiveIdx];
+    centerV = fmtShort(s.value);
+    centerT = `${s.label} · ${pct(s.value / sum)}`;
+  } else {
+    centerV = fmtShort(costTotal);
+    centerT = '全年总成本';
+  }
+
+  $donut.innerHTML =
+    `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)">${arcs}</svg>
+     <div class="donut-center"><div class="dc-v">${centerV}</div><div class="dc-t">${centerT}</div></div>`;
+
+  $legend.innerHTML = segs.map((seg, i) => {
+    const active = costActiveIdx === i;
+    const dim = costActiveIdx != null && !active;
+    return `<div class="lg-item${active ? ' active' : ''}" data-idx="${i}" style="${dim ? 'opacity:.4;' : ''}">
+       <span class="lg-dot" style="background:${seg.color}"></span>
+       <span class="lg-label">${seg.label}</span>
+       <span class="lg-val">${fmtShort(seg.value)}</span>
+       <span class="lg-pct">${pct(seg.value / sum)}</span>
+     </div>`;
+  }).join('');
+
+  // 点击切换高亮（仅绑定一次，容器节点稳定）
+  if (!$donut.dataset.bound) {
+    const onClick = e => {
+      const el = e.target.closest('[data-idx]');
+      if (!el) return;
+      const idx = parseInt(el.dataset.idx, 10);
+      costActiveIdx = (costActiveIdx === idx) ? null : idx;
+      drawCostDonut();
+    };
+    $donut.addEventListener('click', onClick);
+    $legend.addEventListener('click', onClick);
+    $donut.dataset.bound = '1';
+  }
+}
+
+// ================= 方案对比 =================
+const PLAN_KEY = 'salaryPlans';
+const MAX_PLANS = 4;
+function loadPlans() {
+  try { return JSON.parse(localStorage.getItem(PLAN_KEY) || '[]'); } catch (e) { return []; }
+}
+function storePlans(plans) {
+  try { localStorage.setItem(PLAN_KEY, JSON.stringify(plans)); } catch (e) {}
+}
+
+function renderCompare() {
+  const plans = loadPlans();
+  const $empty = document.getElementById('compareEmpty');
+  const $table = document.getElementById('compareTable');
+  const $hint  = document.getElementById('compareHint');
+  if (!$table) return;
+
+  if (!plans.length) {
+    $empty.style.display = 'block';
+    $table.style.display = 'none';
+    $hint.style.display = 'none';
+    return;
+  }
+  $empty.style.display = 'none';
+  $table.style.display = '';
+  $hint.style.display = plans.length >= MAX_PLANS ? 'block' : 'none';
+
+  // 逐方案重算，保证口径一致
+  const computed = plans.map(p => {
+    const r = calculate(p);
+    const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
+    const companyYearCost = round2(r.annualGross + r.companyTotal * 12);
+    return {
+      monthly: p.monthly, bonus: p.bonus, hfRate: p.hfRate, mode: p.mode,
+      annualNet: r.annualNet, realIncome, companyYearCost,
+      personalIns: r.personalTotal * 12, tax: r.annualTax,
+    };
+  });
+
+  // 各指标的"最优值"索引（到手/含公积金越高越好，公司成本仅作展示）
+  const bestIdx = key => {
+    let bi = 0;
+    computed.forEach((c, i) => { if (c[key] > computed[bi][key]) bi = i; });
+    return bi;
+  };
+  const bestNet  = bestIdx('annualNet');
+  const bestReal = bestIdx('realIncome');
+
+  const rows = [
+    { label: '税前月薪',     fn: c => fmt(c.monthly) },
+    { label: '年终奖',       fn: c => c.bonus > 0 ? fmt(c.bonus) : '—' },
+    { label: '公积金比例',   fn: c => pct(c.hfRate) },
+    { label: '计税方式',     fn: c => c.mode === 'separate' ? '单独' : '并入' },
+    { label: '到手年薪',     fn: c => fmt(c.annualNet),  best: bestNet,  raw: c => c.annualNet },
+    { label: '含公积金年薪', fn: c => fmt(c.realIncome), best: bestReal, raw: c => c.realIncome },
+    { label: '个税合计',     fn: c => fmt(c.tax) },
+    { label: '公司总成本',   fn: c => fmt(c.companyYearCost) },
+  ];
+
+  const head = `<thead><tr><th></th>${computed.map((c, i) =>
+    `<th>方案${i + 1}<span class="plan-del" data-idx="${i}" title="删除">×</span></th>`
+  ).join('')}</tr></thead>`;
+
+  const body = `<tbody>${rows.map(row => {
+    // 越高越好的行：在最优方案单元格下用小字标出它领先第二名多少
+    let leadIdx = -1, leadStr = '';
+    if (row.raw && computed.length > 1) {
+      const vals = computed.map(row.raw);
+      const sorted = [...vals].slice().sort((a, b) => b - a);
+      leadIdx = vals.indexOf(sorted[0]);
+      const lead = round2(sorted[0] - sorted[1]);
+      if (lead > 0) leadStr = `+${fmt(lead)}`;
+    }
+    return `<tr><th>${row.label}</th>${computed.map((c, i) => {
+      const sub = (i === leadIdx && leadStr) ? `<div class="cell-sub">${leadStr}</div>` : '';
+      return `<td class="${row.best === i ? 'best' : ''}">${row.fn(c)}${sub}</td>`;
+    }).join('')}</tr>`;
+  }).join('')}</tbody>`;
+
+  $table.innerHTML = head + body;
+
+  $table.querySelectorAll('.plan-del').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.idx, 10);
+      const cur = loadPlans();
+      cur.splice(idx, 1);
+      storePlans(cur);
+      renderCompare();
+    });
+  });
+}
+
 const $salary = document.getElementById('salary');
 const $bonus  = document.getElementById('bonus');
 const $socialBase = document.getElementById('socialBase');
@@ -1045,6 +1408,7 @@ const $hfBase = document.getElementById('hfBase');
 const $syncBase = document.getElementById('syncBase');
 const $bonusMonth = document.getElementById('bonusMonth');
 const $bonusModeWrap = document.getElementById('bonusMode');
+const $hfRate = document.getElementById('hfRate');
 
 // ---- 千分位格式化：输入框失焦时把 60000 → 60,000；聚焦时还原成 60000 方便编辑 ----
 function stripCommas(s) { return (s || '').replace(/,/g, ''); }
@@ -1086,6 +1450,14 @@ for (let i = 1; i <= 12; i++) {
   $bonusMonth.appendChild(opt);
 }
 
+// 公积金缴存比例下拉（上海 5%~12%，单位与个人一致），默认 12%
+for (let p = 5; p <= 12; p++) {
+  const opt = document.createElement('option');
+  opt.value = p / 100; opt.textContent = `${p}%`;
+  if (p === 12) opt.selected = true;
+  $hfRate.appendChild(opt);
+}
+
 let bonusMode = 'separate';
 $bonusModeWrap.addEventListener('click', e => {
   const btn = e.target.closest('button');
@@ -1108,6 +1480,7 @@ function readInputs() {
     bonusMonth: parseInt($bonusMonth.value, 10),
     customSocialBase: (isFinite(sbRaw) && sbRaw > 0) ? sbRaw : null,
     customHfBase:     (isFinite(hbRaw) && hbRaw > 0) ? hbRaw : null,
+    hfRate:           parseFloat($hfRate.value) || 0.12,
   };
 }
 
@@ -1158,6 +1531,7 @@ try {
     if (typeof saved.monthly === 'number')    $salary.value = String(saved.monthly);
     if (typeof saved.bonus === 'number')      $bonus.value = String(saved.bonus);
     if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
+    if (typeof saved.hfRate === 'number')     $hfRate.value = String(saved.hfRate);
     if (typeof saved.customSocialBase === 'number') {
       $socialBase.value = String(saved.customSocialBase);
       $socialBase.dataset.user = 'true';
@@ -1235,6 +1609,7 @@ $hfBase.addEventListener('blur', () => {
   }
 });
 $bonusMonth.addEventListener('change', saveAndRecalc);
+$hfRate.addEventListener('change', saveAndRecalc);
 
 // 同步按钮：把公积金基数拉成和社保一致
 //  - 社保已自定义：公积金也填成同样的数（标记为用户输入）
@@ -1264,7 +1639,17 @@ $bonusQuick.addEventListener('click', e => {
   saveAndRecalc();
 });
 
+// 保存当前方案 → 加入对比
+document.getElementById('savePlanBtn').addEventListener('click', () => {
+  const plans = loadPlans();
+  if (plans.length >= MAX_PLANS) plans.shift();  // 超出上限，丢弃最早的
+  plans.push(readInputs());
+  storePlans(plans);
+  renderCompare();
+});
+
 saveAndRecalc();
+renderCompare();
 </script>
 </body>
 </html>
