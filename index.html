@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="工资计算器">
 <meta name="theme-color" content="#3B8CF5">
-<title>上海工资计算器</title>
+<title>工资计算器 · 多城市</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%233B8CF5'/><text x='90' y='120' font-size='110' text-anchor='middle' fill='white' font-family='-apple-system,sans-serif' font-weight='700'>¥</text></svg>">
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -628,11 +628,19 @@
 <body>
 
 <div class="hero">
-  <h1>上海工资计算器</h1>
-  <div class="sub">2025 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
+  <h1>工资计算器</h1>
+  <div class="sub" id="heroSub">2025 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
 </div>
 
 <div class="input-card">
+
+  <!-- 所在城市：决定社保 / 公积金基数上下限 -->
+  <div class="field field-inline">
+    <div class="inline-row">
+      <span>所在城市 <span class="field-hint">决定社保/公积金基数</span></span>
+      <select id="city"></select>
+    </div>
+  </div>
 
   <!-- 第一行：月薪 + 年终奖 -->
   <div class="field-pair">
@@ -803,7 +811,7 @@
     </table>
   </div>
 
-  <div class="hint">仅供参考 · 按上海 2025 年度标准（2025-07-01 起）</div>
+  <div class="hint" id="footerHint">仅供参考 · 按上海 2025 年度标准（2025-07-01 起）</div>
 </div>
 
 <script>
@@ -849,6 +857,37 @@ const CONFIG = {
     [Infinity, 0.45, 15160],
   ],
 };
+
+// ================= 城市配置（社保 / 公积金基数上下限按城市不同） =================
+// 说明：
+//  - 个税规则、五险一金费率为全国通用口径（见 CONFIG.yearlyBrackets / CONFIG.insurance）；
+//    各城市真正不同的是「社保基数」与「公积金基数」的上下限，这里按城市分别配置。
+//  - 数据为各地 2025 年度公开标准（多自 2025-07 起执行）。社保按养老保险口径取统一基数，
+//    实际各险种基数、单位费率可能因行业/户籍略有差异；结果仅供参考，以当地最新政策为准。
+const CITIES = {
+  sh: { name: '上海', socialMin: 7460, socialMax: 37302, hfMin: 2690, hfMax: 37302 },
+  bj: { name: '北京', socialMin: 7162, socialMax: 35811, hfMin: 2540, hfMax: 35811 },
+  gz: { name: '广州', socialMin: 5510, socialMax: 27549, hfMin: 2500, hfMax: 39828 },
+  sz: { name: '深圳', socialMin: 4775, socialMax: 27549, hfMin: 2360, hfMax: 44265 },
+  hz: { name: '杭州', socialMin: 4986, socialMax: 25299, hfMin: 2490, hfMax: 40694 },
+  cd: { name: '成都', socialMin: 4588, socialMax: 22938, hfMin: 2100, hfMax: 22938 },
+  nj: { name: '南京', socialMin: 4952, socialMax: 24762, hfMin: 2490, hfMax: 41400 },
+};
+let currentCity = 'sh';
+// 把所选城市的基数上下限写入 CONFIG，使 calculate / render 无需改动即可生效
+function applyCity(key) {
+  const c = CITIES[key] || CITIES.sh;
+  currentCity = CITIES[key] ? key : 'sh';
+  CONFIG.socialBaseMin = c.socialMin;
+  CONFIG.socialBaseMax = c.socialMax;
+  CONFIG.housingFundBaseMin = c.hfMin;
+  CONFIG.housingFundBaseMax = c.hfMax;
+  // 同步顶部副标题与底部说明的城市名
+  const sub = document.getElementById('heroSub');
+  if (sub) sub.textContent = `${c.name} · 2025 年度标准 · 累计预扣预缴`;
+  const foot = document.getElementById('footerHint');
+  if (foot) foot.textContent = `仅供参考 · 按${c.name} 2025 年度社保 / 公积金基数标准`;
+}
 
 const clamp = (x, lo, hi) => Math.min(Math.max(x, lo), hi);
 const round2 = x => Math.round(x * 100) / 100;
@@ -1336,17 +1375,21 @@ function renderCompare() {
   $table.style.display = '';
   $hint.style.display = plans.length >= MAX_PLANS ? 'block' : 'none';
 
-  // 逐方案重算，保证口径一致
+  // 逐方案重算，保证口径一致（不同方案可能是不同城市，按各自城市基数计算）
+  const keepCity = currentCity;
   const computed = plans.map(p => {
+    applyCity(p.city && CITIES[p.city] ? p.city : keepCity);
     const r = calculate(p);
     const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
     const companyYearCost = round2(r.annualGross + r.companyTotal * 12);
     return {
+      cityName: (CITIES[p.city] || CITIES[keepCity]).name,
       monthly: p.monthly, bonus: p.bonus, hfRate: p.hfRate, mode: p.mode,
       annualNet: r.annualNet, realIncome, companyYearCost,
       personalIns: r.personalTotal * 12, tax: r.annualTax,
     };
   });
+  applyCity(keepCity);  // 还原到当前选中城市，避免污染主界面
 
   // 各指标的"最优值"索引（到手/含公积金越高越好，公司成本仅作展示）
   const bestIdx = key => {
@@ -1358,6 +1401,7 @@ function renderCompare() {
   const bestReal = bestIdx('realIncome');
 
   const rows = [
+    { label: '城市',         fn: c => c.cityName },
     { label: '税前月薪',     fn: c => fmt(c.monthly) },
     { label: '年终奖',       fn: c => c.bonus > 0 ? fmt(c.bonus) : '—' },
     { label: '公积金比例',   fn: c => pct(c.hfRate) },
@@ -1458,6 +1502,18 @@ for (let p = 5; p <= 12; p++) {
   $hfRate.appendChild(opt);
 }
 
+// 城市下拉：填充选项 + 切换即按新城市基数重算
+const $city = document.getElementById('city');
+Object.entries(CITIES).forEach(([key, c]) => {
+  const opt = document.createElement('option');
+  opt.value = key; opt.textContent = c.name;
+  $city.appendChild(opt);
+});
+$city.addEventListener('change', () => {
+  applyCity($city.value);
+  saveAndRecalc();
+});
+
 let bonusMode = 'separate';
 $bonusModeWrap.addEventListener('click', e => {
   const btn = e.target.closest('button');
@@ -1481,6 +1537,7 @@ function readInputs() {
     customSocialBase: (isFinite(sbRaw) && sbRaw > 0) ? sbRaw : null,
     customHfBase:     (isFinite(hbRaw) && hbRaw > 0) ? hbRaw : null,
     hfRate:           parseFloat($hfRate.value) || 0.12,
+    city:             currentCity,
   };
 }
 
@@ -1532,6 +1589,7 @@ try {
     if (typeof saved.bonus === 'number')      $bonus.value = String(saved.bonus);
     if (saved.bonusMonth)                     $bonusMonth.value = saved.bonusMonth;
     if (typeof saved.hfRate === 'number')     $hfRate.value = String(saved.hfRate);
+    if (saved.city && CITIES[saved.city])     currentCity = saved.city;
     if (typeof saved.customSocialBase === 'number') {
       $socialBase.value = String(saved.customSocialBase);
       $socialBase.dataset.user = 'true';
@@ -1561,6 +1619,10 @@ try {
     }
   });
 } catch (e) {}
+
+// 同步城市下拉到当前城市，并把对应基数写入 CONFIG（含首屏文案）
+$city.value = currentCity;
+applyCity(currentCity);
 
 // 月薪变化：年终奖按倍数同步；基数字段**若为空（即跟随月薪）**也不用动（计算时自动跟随）
 $salary.addEventListener('input', () => {
