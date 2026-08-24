@@ -18,11 +18,9 @@
     color: #222;
     -webkit-font-smoothing: antialiased;
   }
-  /* 全局字体统一：表单控件、按钮、table 等都继承 body 字体 */
   input, button, select, textarea, table, th, td {
     font-family: inherit;
   }
-  /* 顶部标题（独立，只负责标题） */
   .hero {
     background: linear-gradient(135deg, #3B8CF5 0%, #66B3FF 100%);
     color: #fff;
@@ -39,8 +37,6 @@
     font-size: 12px;
     opacity: .88;
   }
-
-  /* 输入卡片（白底，独立卡片） */
   .input-card {
     background: #fff;
     border-radius: 14px;
@@ -50,8 +46,6 @@
     position: relative;
     z-index: 1;
   }
-
-  /* 统一块间距：所有"输入块"之间都是 18px */
   .input-card > .field,
   .input-card > .field-pair,
   .input-card > .quick-block {
@@ -60,16 +54,12 @@
   .input-card > *:last-child {
     margin-bottom: 0;
   }
-  /* 单行控件字段（标题与控件同处一行，如「公积金缴存比例」）本身只占一行，
-     下方 18px 夹在两行纯文字间会显空，故收紧到 10px */
   .input-card > .field-inline {
     margin-bottom: 10px;
   }
-
   .field {
-    margin-bottom: 0;   /* 由上面的 > 选择器统一控制 */
+    margin-bottom: 0;
   }
-  /* 两个字段并排：内部 field 不要再加底部 margin，由 grid gap 管水平 */
   .field-pair {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -85,7 +75,7 @@
     font-size: 12px;
     color: #555;
     margin-bottom: 6px;
-    min-height: 22px;  /* 保证和带按钮的 label 等高 */
+    min-height: 22px;
   }
   .field-hint {
     font-size: 11px;
@@ -104,8 +94,6 @@
     cursor: pointer;
   }
   .sync-btn:active { background: #DCE7F5; }
-
-  /* 输入框：浅灰边框，白底 */
   .input-row {
     display: flex;
     align-items: center;
@@ -141,12 +129,10 @@
     padding: 0;
   }
   .input-row input::placeholder { color: #bbb; font-weight: 500; }
-  /* "自动跟随"状态：输入框为空时显示一个灰色的提示数字（由 JS 填入 value） */
   .input-row input.auto-value {
     color: #bbb;
     font-weight: 500;
   }
-
   .field-pair .input-row .prefix { font-size: 16px; }
   .field-pair .input-row input { font-size: 18px; }
   @media (max-width: 375px) {
@@ -154,8 +140,6 @@
     .field-pair .input-row .prefix { font-size: 14px; }
     .field-pair .input-row input { font-size: 16px; }
   }
-
-  /* 分段选择器（白底版） */
   .segmented {
     display: flex;
     background: #F1F3F6;
@@ -180,12 +164,11 @@
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(0,0,0,.08);
   }
-
   .inline-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 12px;       /* 与 .field label 统一 */
+    font-size: 12px;
     color: #555;
   }
   .inline-row select {
@@ -200,8 +183,6 @@
     font-family: inherit;
   }
   .inline-row select option { color: #222; }
-
-  /* 快捷按钮组（浅底版） */
   .quick-label {
     font-size: 12px;
     color: #555;
@@ -234,8 +215,6 @@
     font-weight: 600;
     border-color: #3B8CF5;
   }
-
-  /* 结果区 */
   .content {
     padding: 0 16px;
     padding-bottom: calc(env(safe-area-inset-bottom, 0) + 32px);
@@ -264,8 +243,6 @@
     margin-right: 6px;
     border-radius: 2px;
   }
-
-  /* 顶部总览蓝卡 */
   .summary {
     background: linear-gradient(135deg, #3B8CF5 0%, #5AA8FF 100%);
     color: #fff;
@@ -319,17 +296,15 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  /* 计税方式对比格：数字在上（和普通格一致），标签在下显示计税方式 */
   .summary-grid .item.compare.clickable {
     cursor: pointer;
   }
   .summary-grid .item.compare.clickable .v {
-    color: #FFE082;   /* 可切换时数字变成黄色，吸引注意 */
+    color: #FFE082;
   }
   .summary-grid .item.compare.clickable:active {
     opacity: .7;
   }
-  /* 到手年薪卡底部：年终奖优化提示，作为汇总后的补充信息 */
   .split-note {
     margin-top: 10px;
     font-size: 12px;
@@ -338,8 +313,6 @@
   }
   .split-note .sn-label { font-weight: 600; color: #fff; margin-right: 6px; }
   .split-note b { color: #FFE082; font-weight: 700; }
-
-  /* 月度速览横条 */
   .monthly-glance {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -369,7 +342,6 @@
     font-size: 11px;
     margin-left: 2px;
   }
-
   table {
     width: 100%;
     border-collapse: collapse;
@@ -389,7 +361,6 @@
     font-size: 12px;
     border-bottom: 1px solid #eee;
   }
-  /* 五险一金表：每行独立 grid（tr 保留，可以画整行下划线） */
   .ins-table {
     width: 100%;
     border-collapse: collapse;
@@ -397,7 +368,7 @@
   .ins-table thead, .ins-table tbody, .ins-table tfoot { display: contents; }
   .ins-table tr {
     display: grid;
-    grid-template-columns: 72px auto auto auto;   /* 第 1 列固定 72px 容纳"住房公积金"5 字 */
+    grid-template-columns: 72px auto auto auto;
     justify-content: space-between;
     align-items: baseline;
     border-bottom: 1px solid #eee;
@@ -407,10 +378,8 @@
     white-space: nowrap;
     border: none;
   }
-  /* 第 1 列左对齐；数据列的 cell 本身居中，cell 内容（amt-cell）自己右对齐—— 这样表头和数据中心对齐 */
   .ins-table td:nth-child(1), .ins-table th:nth-child(1) { justify-self: start; }
   .ins-table td:nth-child(n+2), .ins-table th:nth-child(n+2) { justify-self: center; }
-
   .ins-table th {
     color: #3B8CF5;
     font-weight: 500;
@@ -441,11 +410,8 @@
     min-width: 32px;
     text-align: right;
   }
-  /* 表头的 amt-cell：文字居中对齐 */
   .ins-table th .amt-cell .amt { text-align: center; }
   .ins-table th .amt-cell .pct { text-align: center; }
-
-  /* 每月到手表：同思路，5 列 */
   .monthly-table {
     width: 100%;
     border-collapse: collapse;
@@ -453,8 +419,6 @@
   .monthly-table thead, .monthly-table tbody { display: contents; }
   .monthly-table tr {
     display: grid;
-    /* 5 列固定比例，保证每行列位置一致 */
-    /* 个税列用 auto 贴合内容（数值小），不占整份 1fr，避免空旷显宽 */
     grid-template-columns: 40px 1fr 44px auto 1fr;
     align-items: baseline;
     border-bottom: 1px solid #eee;
@@ -469,14 +433,10 @@
   }
   .monthly-table td:nth-child(1), .monthly-table th:nth-child(1) { justify-self: start; }
   .monthly-table td:nth-child(n+2), .monthly-table th:nth-child(n+2) { justify-self: center; }
-  /* 月份数据列右对齐（1月/12月末位对齐） */
   .monthly-table td:nth-child(1) .mc-month { text-align: right; }
-  /* 统一数据单元格宽度，保证各行列位置一致（同 .amt-cell 思路）
-     min-width 须覆盖"年终奖并入月"的大数字（可能 200,000+） */
   .monthly-table .mc-num { display: inline-block; min-width: 72px; text-align: right; }
   .monthly-table .mc-rate { display: inline-block; min-width: 34px; text-align: right; }
   .monthly-table .mc-month { display: inline-block; min-width: 30px; }
-  /* 表头里同样的 span 改为居中 */
   .monthly-table th .mc-num,
   .monthly-table th .mc-rate,
   .monthly-table th .mc-month {
@@ -498,11 +458,9 @@
     background: #f8fafd;
   }
   .muted { color: #888; font-size: 11px; }
-  /* 数字保留等宽特性，但仍用系统字体（好看 + 对齐）
-     tabular-nums 让 0-9 每位宽度一致，不同字重之间也对齐 */
   .n,
   .ins-table .amt-cell,
-  .ins-table td:nth-child(2),       /* 基数列（只对 td，不影响 th） */
+  .ins-table td:nth-child(2),
   .monthly-table .mc-num,
   .monthly-table .mc-rate,
   .base-note .bn-val,
@@ -512,12 +470,10 @@
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
   }
-  /* summary-grid 里是混合内容（数字 + 文字标签） */
   .summary-grid .v {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
   }
-  /* 税率列交替色：相邻的不同税率档用深浅色区分，同一档保持一致 */
   .rate-a { color: #222; }
   .rate-b { color: #888; }
   .base-note {
@@ -526,7 +482,6 @@
     border-top: 1px dashed #e5e7eb;
     font-size: 11px;
     color: #888;
-    /* 3 列全部 auto：标签 / 数字+状态 / 限额 紧挨在一起，右侧留白 */
     display: grid;
     grid-template-columns: auto auto auto;
     justify-content: start;
@@ -556,8 +511,6 @@
     font-size: 10px;
     margin-left: 4px;
   }
-
-  /* 卡片标题右侧按钮（如"保存当前方案"） */
   .card-title .title-btn {
     margin-left: auto;
     background: #EEF3FA;
@@ -570,8 +523,6 @@
     cursor: pointer;
   }
   .card-title .title-btn:active { background: #DCE7F5; }
-
-  /* 方案对比表 */
   .compare-empty {
     color: #aaa;
     font-size: 12px;
@@ -606,12 +557,9 @@
   .compare-table .cell-sub { font-size: 10px; color: #999; font-weight: 400; margin-top: 2px; }
   .compare-table .sub-row td, .compare-table .sub-row th { color: #999; }
   .compare-hint { color: #bbb; font-size: 11px; margin-top: 10px; text-align: center; }
-
-  /* 公司成本环形图 */
   .donut-wrap { display: flex; align-items: center; gap: clamp(8px, 3vw, 16px); }
-  /* 扇形随屏宽自适应缩放（不再写死 150px），aspect-ratio 锁定正圆、避免变椭圆 */
   .donut-chart { flex: 0 0 auto; position: relative; width: clamp(140px, 40vw, 180px); aspect-ratio: 1; }
-  .donut-chart svg { width: 100%; height: 100%; display: block; }  /* 跟随容器缩放，viewBox 自适应 */
+  .donut-chart svg { width: 100%; height: 100%; display: block; }
   .donut-center {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
@@ -626,16 +574,13 @@
   .donut-legend .lg-item.active .lg-label { color: #222; font-weight: 600; }
   .cost-arc { cursor: pointer; transition: stroke-width .15s ease, stroke-opacity .15s ease; }
   .donut-legend .lg-dot { width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; flex: 0 0 auto; }
-  /* 标签优先完整显示：取自然宽度、不截断；金额/百分比靠右成组 */
   .donut-legend .lg-label { color: #555; flex: 0 0 auto; white-space: nowrap; }
   .donut-legend .lg-val { color: #222; font-weight: 500; font-variant-numeric: tabular-nums; margin-left: auto; padding-left: 8px; text-align: right; white-space: nowrap; }
   .donut-legend .lg-pct { color: #aaa; font-size: 10px; min-width: 30px; text-align: right; margin-left: 5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   @media (max-width: 360px) {
-    /* 扇形尺寸与间距已由 clamp() 自适应，此处只收缩图例字号 */
     .donut-legend .lg-item { font-size: 10px; }
     .donut-legend .lg-val { font-size: 10px; }
   }
-
   .hint {
     text-align: center;
     color: #aaa;
@@ -648,12 +593,11 @@
 
 <div class="hero">
   <h1>工资计算器</h1>
-  <div class="sub" id="heroSub">2025 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
+  <div class="sub" id="heroSub">2026 年度上海标准 · 累计预扣预缴 · 年终奖可选计税</div>
 </div>
 
 <div class="input-card">
 
-  <!-- 所在城市：决定社保 / 公积金基数上下限 -->
   <div class="field field-inline">
     <div class="inline-row">
       <span>所在城市 <span class="field-hint">决定社保/公积金基数</span></span>
@@ -661,7 +605,6 @@
     </div>
   </div>
 
-  <!-- 第一行：月薪 + 年终奖 -->
   <div class="field-pair">
     <div class="field">
       <label>税前月薪（元）</label>
@@ -679,7 +622,6 @@
     </div>
   </div>
 
-  <!-- 年终奖月数快捷按钮（按税前月薪倍数快速填入） -->
   <div class="quick-block">
     <div class="quick-label">年终奖月数 <span class="field-hint">按税前月薪倍数快速填入</span></div>
     <div class="quick-row" id="bonusQuick">
@@ -695,7 +637,6 @@
     </div>
   </div>
 
-  <!-- 第二行：社保基数 + 公积金基数（默认同步跟随月薪，点"↻"恢复同步） -->
   <div class="field-pair base-pair">
     <div class="field">
       <label>社保基数（元）</label>
@@ -716,7 +657,6 @@
     </div>
   </div>
 
-  <!-- 公积金缴存比例（上海：单位与个人比例一致，5%~12%） -->
   <div class="field field-inline">
     <div class="inline-row">
       <span>公积金缴存比例 <span class="field-hint">单位与个人一致</span></span>
@@ -739,7 +679,6 @@
 </div>
 
 <div class="content">
-  <!-- 汇总蓝卡 -->
   <div class="summary">
     <div>
       <span class="big" id="annualNet">—</span>
@@ -749,7 +688,6 @@
     <div class="split-note" id="splitNote" style="display:none"></div>
   </div>
 
-  <!-- 月度速览 -->
   <div class="monthly-glance">
     <div class="mg-item">
       <div class="mg-v" id="avgCash">—</div>
@@ -761,7 +699,6 @@
     </div>
   </div>
 
-  <!-- 五险一金 -->
   <div class="card">
     <div class="card-title">每月五险一金</div>
     <table class="ins-table">
@@ -786,7 +723,6 @@
     <div class="base-note" id="baseNote"></div>
   </div>
 
-  <!-- 公司总成本 -->
   <div class="card">
     <div class="card-title">公司总成本</div>
     <div class="monthly-glance" style="margin-bottom:16px">
@@ -806,7 +742,6 @@
     <div class="base-note" id="companyCostNote"></div>
   </div>
 
-  <!-- 方案对比 -->
   <div class="card">
     <div class="card-title">
       方案对比
@@ -821,7 +756,6 @@
     <div class="compare-hint" id="compareHint" style="display:none">最多保存 4 个方案，超出会覆盖最早的一个</div>
   </div>
 
-  <!-- 每月明细 -->
   <div class="card">
     <div class="card-title">每月到手工资</div>
     <table class="monthly-table">
@@ -838,20 +772,14 @@
     </table>
   </div>
 
-  <div class="hint" id="footerHint">仅供参考 · 按上海 2025 年度标准（2025-07-01 起）</div>
+  <div class="hint" id="footerHint">仅供参考 · 按上海 2026 年度社保 / 公积金基数标准</div>
 </div>
 
 <script>
-// ================= 配置（对应 Swift SalaryConfig.swift） =================
-// 数据来源：
-//  - 社保基数：上海市人社局 2025-09-18 公告，自 2025-07-01 起执行
-//  - 公积金基数：沪公积金管委会〔2025〕8 号，自 2025-07-01 起执行
-//  - 全口径城镇单位就业人员平均工资：12434 元/月（2024 年度）
+// ================= 配置 =================
 const CONFIG = {
-  // 社保（养老/医疗/失业/工伤/生育）基数
   socialBaseMin: 7460,
   socialBaseMax: 37302,
-  // 公积金基数（下限参照最低工资 2690，未变；上限同社保）
   housingFundBaseMin: 2690,
   housingFundBaseMax: 37302,
   taxThresholdMonthly: 5000,
@@ -863,7 +791,6 @@ const CONFIG = {
     { name: '生育保险',   personal: 0.0,   company: 0.0   },
     { name: '住房公积金', personal: 0.12,  company: 0.12  },
   ],
-  // 年度累进税率表 [上限, 税率, 速算扣除]
   yearlyBrackets: [
     [36000,    0.03, 0],
     [144000,   0.10, 2520],
@@ -873,7 +800,6 @@ const CONFIG = {
     [960000,   0.35, 85920],
     [Infinity, 0.45, 181920],
   ],
-  // 年终奖月度表（年度 / 12）
   bonusMonthlyBrackets: [
     [3000,     0.03, 0],
     [12000,    0.10, 210],
@@ -885,23 +811,18 @@ const CONFIG = {
   ],
 };
 
-// ================= 城市配置（社保 / 公积金基数上下限按城市不同） =================
-// 说明：
-//  - 个税规则、五险一金费率为全国通用口径（见 CONFIG.yearlyBrackets / CONFIG.insurance）；
-//    各城市真正不同的是「社保基数」与「公积金基数」的上下限，这里按城市分别配置。
-//  - 数据为各地 2025 年度公开标准（多自 2025-07 起执行）。社保按养老保险口径取统一基数，
-//    实际各险种基数、单位费率可能因行业/户籍略有差异；结果仅供参考，以当地最新政策为准。
+// ================= 城市配置（2026年度最新数据） =================
 const CITIES = {
-  sh: { name: '上海', socialMin: 7460, socialMax: 37302, hfMin: 2690, hfMax: 37302 },
-  bj: { name: '北京', socialMin: 7162, socialMax: 35811, hfMin: 2540, hfMax: 35811 },
-  gz: { name: '广州', socialMin: 5510, socialMax: 27549, hfMin: 2500, hfMax: 39828 },
-  sz: { name: '深圳', socialMin: 4775, socialMax: 27549, hfMin: 2360, hfMax: 44265 },
-  hz: { name: '杭州', socialMin: 4986, socialMax: 25299, hfMin: 2490, hfMax: 40694 },
+  sh: { name: '上海', socialMin: 7546, socialMax: 37731, hfMin: 2740, hfMax: 37731 },
+  bj: { name: '北京', socialMin: 7270, socialMax: 36348, hfMin: 2540, hfMax: 36348 },
+  gz: { name: '广州', socialMin: 6234, socialMax: 31170, hfMin: 2500, hfMax: 39828 },
+  sz: { name: '深圳', socialMin: 6727, socialMax: 33633, hfMin: 2360, hfMax: 44265 },
+  hz: { name: '杭州', socialMin: 5346, socialMax: 26730, hfMin: 2490, hfMax: 40694 },
   cd: { name: '成都', socialMin: 4588, socialMax: 22938, hfMin: 2100, hfMax: 22938 },
-  nj: { name: '南京', socialMin: 4952, socialMax: 24762, hfMin: 2490, hfMax: 41400 },
+  nj: { name: '南京', socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 41400 },
 };
 let currentCity = 'sh';
-// 把所选城市的基数上下限写入 CONFIG，使 calculate / render 无需改动即可生效
+
 function applyCity(key) {
   const c = CITIES[key] || CITIES.sh;
   currentCity = CITIES[key] ? key : 'sh';
@@ -909,11 +830,10 @@ function applyCity(key) {
   CONFIG.socialBaseMax = c.socialMax;
   CONFIG.housingFundBaseMin = c.hfMin;
   CONFIG.housingFundBaseMax = c.hfMax;
-  // 同步顶部副标题与底部说明的城市名
   const sub = document.getElementById('heroSub');
-  if (sub) sub.textContent = `${c.name} · 2025 年度标准 · 累计预扣预缴`;
+  if (sub) sub.textContent = `${c.name} · 2026 年度标准 · 累计预扣预缴`;
   const foot = document.getElementById('footerHint');
-  if (foot) foot.textContent = `仅供参考 · 按${c.name} 2025 年度社保 / 公积金基数标准`;
+  if (foot) foot.textContent = `仅供参考 · 按${c.name} 2026 年度社保 / 公积金基数标准`;
 }
 
 const clamp = (x, lo, hi) => Math.min(Math.max(x, lo), hi);
@@ -936,9 +856,6 @@ function bonusTaxSeparate(bonus) {
   return 0;
 }
 
-// 年终奖单独计税的"盲区/黑洞"：临界点 T = 月度档上限 ×12，
-// 在 T 之后的一小段区间里，多发钱反而因为整额跳档导致税后更少。
-// 盲区右端点：该点按高一档计税后的税后金额 == 临界点 T 处的税后金额。
 function bonusDeadZone(bonus) {
   const brs = CONFIG.bonusMonthlyBrackets;
   for (let i = 0; i < brs.length - 1; i++) {
@@ -953,8 +870,6 @@ function bonusDeadZone(bonus) {
   return { inZone: false };
 }
 
-// 智能拆分：把年终奖拆成"单独计税部分 sepPart + 并入工资综合所得部分 combPart"，
-// 枚举各档临界点（最优解必在临界点 / 0 / 全额上），返回税后最大的拆法。
 function optimizeBonusSplit(input) {
   const bonus = Math.max(0, input.bonus || 0);
   if (bonus <= 0) return { sepPart: 0, combPart: 0 };
@@ -974,27 +889,20 @@ function optimizeBonusSplit(input) {
 
 function calculate(input) {
   let { monthly, bonus, mode, bonusMonth, customSocialBase, customHfBase, hfRate, splitCombined } = input;
-  // optimal（智能拆分）模式：自动寻找最优拆分点，把年终奖拆成
-  //   //   "单独计税部分 + 并入工资综合所得部分"，绕开年终奖单独计税的盲区（黑洞）
   let splitInfo = null;
   if (mode === 'optimal') {
     const opt = optimizeBonusSplit(input);
     splitCombined = opt.combPart;
     splitInfo = opt;
   }
-  // 实际计税口径：optimal 复用 separate 的单独计税通道，只是把 splitCombined 部分并入综合所得
   const effMode = mode === 'combined' ? 'combined' : 'separate';
-  // 年终奖拆分：combinedPart 并入工资累计预扣，separatePart 走单独计税
   const combinedPart = effMode === 'combined' ? bonus : clamp(splitCombined || 0, 0, bonus);
   const separatePart = effMode === 'combined' ? 0 : round2(bonus - combinedPart);
-  // 公积金缴存比例（单位与个人一致），未传则用默认 12%
   const _hfRate = (hfRate != null && hfRate > 0) ? hfRate : 0.12;
-  // 月薪 0 视为无效，基数全归 0（不强制按下限保底）
   const socialBase = (customSocialBase != null && customSocialBase > 0)
     ? clamp(customSocialBase, CONFIG.socialBaseMin, CONFIG.socialBaseMax)
     : (monthly > 0 ? clamp(monthly, CONFIG.socialBaseMin, CONFIG.socialBaseMax) : 0);
   const socialIsCustom = customSocialBase != null && customSocialBase > 0;
-  // 公积金基数：优先用自定义值，否则跟随月薪
   let hfBase;
   if (customHfBase != null && customHfBase > 0) {
     hfBase = clamp(customHfBase, CONFIG.housingFundBaseMin, CONFIG.housingFundBaseMax);
@@ -1009,7 +917,6 @@ function calculate(input) {
 
   const insurance = CONFIG.insurance.map(it => {
     const base = it.name === '住房公积金' ? hfBase : socialBase;
-    // 公积金比例可配：个人与公司同比例
     const personalRate = it.name === '住房公积金' ? _hfRate : it.personal;
     const companyRate  = it.name === '住房公积金' ? _hfRate : it.company;
     return {
@@ -1041,7 +948,6 @@ function calculate(input) {
     let tax = Math.max(0, round2(cumTaxDue - cumTaxPaid));
     cumTaxPaid += tax;
 
-    // 当月累计应纳税所得额对应的边际税率档
     let marginalRate = 0;
     if (taxable > 0) {
       for (const [ub, r] of CONFIG.yearlyBrackets) {
@@ -1107,9 +1013,7 @@ const fmt = x => {
   if (!isFinite(x)) return '—';
   return x.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 };
-// 带等宽字体包装的版本，用于 innerHTML 场景
 const nfmt = x => `<span class="n">${fmt(x)}</span>`;
-// 简短金额（用于图表中心）：≥1万 显示"xx.x万"
 const fmtShort = x => {
   if (!isFinite(x)) return '—';
   if (Math.abs(x) >= 10000) return `${(x / 10000).toFixed(1)}万`;
@@ -1118,15 +1022,12 @@ const fmtShort = x => {
 const pct = x => {
   const v = x * 100;
   if (Math.abs(v - Math.round(v)) < 1e-9) return `${Math.round(v)}%`;
-  // 保留 2 位小数，但去掉末尾多余的 0：0.50→0.5，8.50→8.5
   return `${v.toFixed(2).replace(/\.?0+$/, '')}%`;
 };
 
 function render(r) {
   document.getElementById('annualNet').textContent = fmt(r.annualNet);
 
-  // 月度速览：不含年终奖的平均到手
-  // 直接重算一次 bonus=0 的场景，结果最精确（避开两种计税方式的反推误差）
   const salaryOnly = r.annualBonus > 0
     ? calculate({
         monthly: (r.annualGross - r.annualBonus) / 12,
@@ -1143,13 +1044,7 @@ function render(r) {
   document.getElementById('avgCash').textContent = fmt(avgCash);
   document.getElementById('avgReal').textContent = fmt(avgReal);
 
-  // 前两排（有无年终奖都相同）
-  // 实得年薪 = 年到手 + 个人公积金 + 公司公积金
-  // （年到手是现金流，公积金虽然进账户但也是你的钱，所以全部加回）
   const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
-  // 年终奖到手 = 年终奖 - 年终奖个税
-  //  - separate 模式：r.bonusTax 就是年终奖单独计税的税额
-  //  - combined 模式：年终奖并入月薪一起累计预扣，无法单独拆出，用"并入 - 不并入"的年到手差值近似
   let bonusNet = 0;
   if (r.annualBonus > 0) {
     if (r.mode === 'separate') {
@@ -1159,19 +1054,16 @@ function render(r) {
     }
   }
   const items = [
-    // 第一排：总收入 → 实得 → 年终奖到手 → 个人公积金
     ['税前年薪',   r.annualGross],
     ['含公积金年薪',   realIncome],
     ['年终奖到手', r.annualBonus > 0 ? bonusNet : null],
     ['个人公积金', r.ann.housingFund],
-    // 第二排：五险一金（个人承担）
     ['养老保险',   r.ann.pension],
     ['医疗保险',   r.ann.medical],
     ['失业保险',   r.ann.unemploy],
     ['公积金合计', r.ann.housingFundTotal],
   ];
 
-  // 第三排：年终奖相关（始终显示，即使年终奖为 0）
   {
     const baseInput = {
       monthly: (r.annualGross - r.annualBonus) / 12,
@@ -1181,8 +1073,6 @@ function render(r) {
       customHfBase: r._customHfBase,
       hfRate: r.hfRate,
     };
-    // 汇总格只在「单独计税 / 并入综合所得」之间做快捷对比；
-    // 智能拆分的详细建议放到下方独立卡片里展示。
     const hasBonus = r.annualBonus > 0;
     let otherMode = '';
     let diff = 0;
@@ -1190,17 +1080,14 @@ function render(r) {
     if (hasBonus && r.mode !== 'optimal') {
       otherMode = r.mode === 'separate' ? 'combined' : 'separate';
       const other = calculate({ ...baseInput, mode: otherMode });
-      diff = round2(r.annualNet - other.annualNet); // 当前 - 另一种（正=当前更优）
+      diff = round2(r.annualNet - other.annualNet);
     } else if (hasBonus) {
       const separate = calculate({ ...baseInput, mode: 'separate' });
       smartGain = round2(r.annualNet - separate.annualNet);
     }
-    // 税前 - 含公积金年薪：正常情况下为正，表示一年"税 + 保险"的净损失
-    // 低收入时可能为负（公司公积金福利 > 税+保险扣款），此时 = 净收益
     const lossAmount = round2(r.annualGross - realIncome);
     const lossLabel = lossAmount >= 0 ? '税后差额' : '公积金倒贴';
     items.push([lossLabel, Math.abs(lossAmount)]);
-    // 个税拆分用增量法：工资个税 = 纯工资税；年终奖个税 = 年终奖带来的税增量
     const bonusTaxShown = round2(r.annualTax - salaryOnly.annualTax);
     items.push(['工资个税',    hasBonus ? round2(salaryOnly.annualTax) : null]);
     items.push(['年终奖个税',  hasBonus ? bonusTaxShown : null]);
@@ -1215,7 +1102,6 @@ function render(r) {
   }
   const grid = document.getElementById('summaryGrid');
   grid.innerHTML = items.map(it => {
-    // 对比格：可点击切换计税方式
     if (it && it.compare) {
       const absDiff = Math.abs(it.diff);
       const clickable = !it.isSmart && absDiff >= 1 && it.diff < 0;
@@ -1231,7 +1117,6 @@ function render(r) {
     return `<div class="item"><div class="v">${v === null ? '—' : fmt(v)}</div><div class="t">${t}</div></div>`;
   }).join('');
 
-  // 绑定点击切换到「智能拆分」
   const clickableCompare = grid.querySelector('.item.compare.clickable');
   if (clickableCompare) {
     clickableCompare.addEventListener('click', () => {
@@ -1255,9 +1140,6 @@ function render(r) {
   document.getElementById('personalTotal').textContent = fmt(r.personalTotal);
   document.getElementById('companyTotal').textContent  = fmt(r.companyTotal);
 
-  // 公司总成本：税前工资 + 公司承担的五险一金
-  //  - 每月用工成本（不含年终）= 税前月薪 + 公司五险一金合计
-  //  - 全年用工成本（含年终）   = 税前年薪(含年终) + 公司五险一金 × 12
   const baseMonthly = r.annualGross > 0 ? (r.annualGross - r.annualBonus) / 12 : 0;
   const companyMonthCost = round2(baseMonthly + r.companyTotal);
   const companyYearCost  = round2(r.annualGross + r.companyTotal * 12);
@@ -1268,10 +1150,8 @@ function render(r) {
      <span class="bn-val">+${baseMonthly > 0 ? pct(r.companyTotal / baseMonthly) : '—'}</span>
      <span class="bn-limit">公司每月额外承担五险一金 ${fmt(r.companyTotal)}</span>`;
 
-  // 公司总成本构成环形图
   renderCostDonut(r, companyYearCost);
 
-  // 基数说明：显示 clamp 规则，且高亮是否触达上/下限
   const gross = r.annualGross ? (r.annualGross - r.annualBonus) / 12 : 0;
 
   function baseHint(isCustom, customVal, autoProbe, lo, hi) {
@@ -1297,7 +1177,6 @@ function render(r) {
      <span class="bn-val">${fmt(r.hfBase)}${hfHit}</span>
      <span class="bn-limit">限额 ${fmt(CONFIG.housingFundBaseMin)} – ${fmt(CONFIG.housingFundBaseMax)}</span>`;
 
-  // 税率交替色：每跳一档切换一次，让你一眼看出"这几个月是同一档"
   let rateClass = 'rate-a';
   let lastRate = -1;
   document.getElementById('monthlyBody').innerHTML = r.monthly.map(m => {
@@ -1320,8 +1199,6 @@ function render(r) {
   renderBonusSplit(r);
 }
 
-// ================= 年终奖智能拆分提示 =================
-// 放在「到手年薪」蓝卡内，独立计算最优拆分，文案保持短句
 function renderBonusSplit(r) {
   const $note = document.getElementById('splitNote');
   if (!$note) return;
@@ -1352,7 +1229,6 @@ function renderBonusSplit(r) {
   }
 }
 
-// ================= 公司成本环形图 =================
 function renderCostDonut(r, total) {
   const companyAnn = name => {
     const i = r.insurance.find(x => x.name === name);
@@ -1362,7 +1238,6 @@ function renderCostDonut(r, total) {
     const i = r.insurance.find(x => x.name === name);
     return i ? round2(i.personalAmount * 12) : 0;
   };
-  // 税前年薪拆分：实际到手 + 个人社保（按险种拆开）+ 个人公积金 + 个税
   const personalFund = r.ann.housingFund;
   let segs = [
     { label: '实际到手',   value: r.annualNet,            color: '#3B8CF5' },
@@ -1379,8 +1254,6 @@ function renderCostDonut(r, total) {
     { label: '公司生育',   value: companyAnn('生育保险'),  color: '#EC4899' },
   ].filter(s => s.value > 0);
 
-  // 排序规则：把"实际到手 + 公积金（个人+公司）"作为归个人的钱放在最前并相邻，
-  // 公积金组内大的在前；其余项目整体按金额从大到小排。
   const FUND = ['个人公积金', '公司公积金'];
   const cash = segs.find(s => s.label === '实际到手');
   const funds = segs.filter(s => FUND.includes(s.label)).sort((a, b) => b.value - a.value);
@@ -1389,14 +1262,12 @@ function renderCostDonut(r, total) {
     .sort((a, b) => b.value - a.value);
   segs = [...(cash ? [cash] : []), ...funds, ...rest];
 
-  // 存入模块状态，交由 drawCostDonut 渲染（点击高亮时复用，无需重算）
   costSegs = segs;
   costTotal = total;
   if (costActiveIdx != null && costActiveIdx >= segs.length) costActiveIdx = null;
   drawCostDonut();
 }
 
-// 当前高亮的扇形索引（null 表示无）
 let costSegs = [], costTotal = 0, costActiveIdx = null;
 
 function drawCostDonut() {
@@ -1427,7 +1298,6 @@ function drawCostDonut() {
     return c;
   }).join('');
 
-  // 圆环中心：未选中显示总成本，选中则显示该项明细
   let centerV, centerT;
   if (costActiveIdx != null && segs[costActiveIdx]) {
     const s = segs[costActiveIdx];
@@ -1453,7 +1323,6 @@ function drawCostDonut() {
      </div>`;
   }).join('');
 
-  // 点击切换高亮（仅绑定一次，容器节点稳定）
   if (!$donut.dataset.bound) {
     const onClick = e => {
       const el = e.target.closest('[data-idx]');
@@ -1495,7 +1364,6 @@ function renderCompare() {
   $table.style.display = '';
   $hint.style.display = plans.length >= MAX_PLANS ? 'block' : 'none';
 
-  // 逐方案重算，保证口径一致（不同方案可能是不同城市，按各自城市基数计算）
   const keepCity = currentCity;
   const computed = plans.map(p => {
     applyCity(p.city && CITIES[p.city] ? p.city : keepCity);
@@ -1509,9 +1377,8 @@ function renderCompare() {
       personalIns: r.personalTotal * 12, tax: r.annualTax,
     };
   });
-  applyCity(keepCity);  // 还原到当前选中城市，避免污染主界面
+  applyCity(keepCity);
 
-  // 各指标的"最优值"索引（到手/含公积金越高越好，公司成本仅作展示）
   const bestIdx = key => {
     let bi = 0;
     computed.forEach((c, i) => { if (c[key] > computed[bi][key]) bi = i; });
@@ -1537,7 +1404,6 @@ function renderCompare() {
   ).join('')}</tr></thead>`;
 
   const body = `<tbody>${rows.map(row => {
-    // 越高越好的行：在最优方案单元格下用小字标出它领先第二名多少
     let leadIdx = -1, leadStr = '';
     if (row.raw && computed.length > 1) {
       const vals = computed.map(row.raw);
@@ -1574,25 +1440,21 @@ const $bonusMonth = document.getElementById('bonusMonth');
 const $bonusModeWrap = document.getElementById('bonusMode');
 const $hfRate = document.getElementById('hfRate');
 
-// ---- 千分位格式化：输入框失焦时把 60000 → 60,000；聚焦时还原成 60000 方便编辑 ----
 function stripCommas(s) { return (s || '').replace(/,/g, ''); }
 function addCommas(s) {
   const raw = stripCommas(s).trim();
   if (raw === '') return '';
   const n = parseFloat(raw);
   if (!isFinite(n)) return raw;
-  // 保留用户输入的小数位（最多 2 位）
   const parts = raw.split('.');
   const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return parts.length > 1 ? `${intPart}.${parts[1].slice(0, 2)}` : intPart;
 }
 function attachCommaFormat($el) {
-  // 初始进入时如果已有数字，直接加逗号
   if ($el.value && !$el.classList.contains('auto-value')) {
     $el.value = addCommas($el.value);
   }
   $el.addEventListener('focus', () => {
-    // 聚焦时去掉逗号（也不影响 auto-value 的清空逻辑）
     if (!$el.classList.contains('auto-value')) {
       $el.value = stripCommas($el.value);
     }
@@ -1603,10 +1465,8 @@ function attachCommaFormat($el) {
     }
   });
 }
-// 4 个金额输入框都启用
 [$salary, $bonus, $socialBase, $hfBase].forEach(attachCommaFormat);
 
-// 月份下拉
 for (let i = 1; i <= 12; i++) {
   const opt = document.createElement('option');
   opt.value = i; opt.textContent = `${i} 月`;
@@ -1614,7 +1474,6 @@ for (let i = 1; i <= 12; i++) {
   $bonusMonth.appendChild(opt);
 }
 
-// 公积金缴存比例下拉（上海 5%~12%，单位与个人一致），默认 12%
 for (let p = 5; p <= 12; p++) {
   const opt = document.createElement('option');
   opt.value = p / 100; opt.textContent = `${p}%`;
@@ -1622,7 +1481,6 @@ for (let p = 5; p <= 12; p++) {
   $hfRate.appendChild(opt);
 }
 
-// 城市下拉：填充选项 + 切换即按新城市基数重算
 const $city = document.getElementById('city');
 Object.entries(CITIES).forEach(([key, c]) => {
   const opt = document.createElement('option');
@@ -1646,7 +1504,6 @@ $bonusModeWrap.addEventListener('click', e => {
 function readInputs() {
   const s = parseFloat(stripCommas($salary.value)) || 0;
   const b = parseFloat(stripCommas($bonus.value))  || 0;
-  // 基数只有在 input 被标记为真实输入时才作为自定义值使用，否则视为 null（跟随月薪）
   const sbRaw = $socialBase.dataset.user === 'true' ? parseFloat(stripCommas($socialBase.value)) : NaN;
   const hbRaw = $hfBase.dataset.user === 'true'     ? parseFloat(stripCommas($hfBase.value))     : NaN;
   return {
@@ -1661,10 +1518,9 @@ function readInputs() {
   };
 }
 
-// 用影子值填充基数输入框（表示当前跟随月薪的结果）
 function fillBaseShadow(r) {
   function setShadow($el, shadow) {
-    if ($el.dataset.user === 'true') return; // 用户已输入，不覆盖
+    if ($el.dataset.user === 'true') return;
     $el.value = shadow > 0 ? addCommas(String(shadow)) : '';
     $el.classList.add('auto-value');
   }
@@ -1682,8 +1538,6 @@ function saveAndRecalc() {
   fillBaseShadow(result);
 }
 
-// 年终奖倍数（null 表示自由输入模式，数字表示 "= 月薪 × N"）
-// 默认 3 月薪，首次打开时月薪变化自动跟随
 let bonusMultiplier = 3;
 const $bonusQuick = document.getElementById('bonusQuick');
 
@@ -1691,7 +1545,6 @@ function updateBonusFromMultiplier() {
   if (bonusMultiplier == null) return;
   const s = parseFloat(stripCommas($salary.value)) || 0;
   const bonusVal = round2(s * bonusMultiplier);
-  // 失焦状态下显示千分位
   $bonus.value = document.activeElement === $bonus ? String(bonusVal) : addCommas(String(bonusVal));
 }
 function highlightQuickButton() {
@@ -1701,7 +1554,6 @@ function highlightQuickButton() {
   });
 }
 
-// 恢复上次输入
 try {
   const saved = JSON.parse(localStorage.getItem('salaryCalc') || 'null');
   if (saved) {
@@ -1721,7 +1573,6 @@ try {
     if (typeof saved.bonusMultiplier === 'number') {
       bonusMultiplier = saved.bonusMultiplier;
     } else if ('bonusMultiplier' in saved) {
-      // localStorage 里明确存了 null（用户手动输入过年终奖），尊重它
       bonusMultiplier = null;
     }
     if (saved.bonusMode) {
@@ -1730,9 +1581,7 @@ try {
         b.classList.toggle('active', b.dataset.v === bonusMode));
     }
   }
-  // 初始高亮对应倍数按钮（默认 3 月薪）
   highlightQuickButton();
-  // 恢复后重新加千分位（因为 value 被覆盖）
   [$salary, $bonus, $socialBase, $hfBase].forEach($el => {
     if ($el.value && !$el.classList.contains('auto-value')) {
       $el.value = addCommas($el.value);
@@ -1740,11 +1589,9 @@ try {
   });
 } catch (e) {}
 
-// 同步城市下拉到当前城市，并把对应基数写入 CONFIG（含首屏文案）
 $city.value = currentCity;
 applyCity(currentCity);
 
-// 月薪变化：年终奖按倍数同步；基数字段**若为空（即跟随月薪）**也不用动（计算时自动跟随）
 $salary.addEventListener('input', () => {
   updateBonusFromMultiplier();
   saveAndRecalc();
@@ -1755,7 +1602,6 @@ $bonus.addEventListener('input', () => {
   saveAndRecalc();
 });
 $socialBase.addEventListener('focus', () => {
-  // 聚焦时：如果是"影子值"，清空让用户从头输入
   if ($socialBase.classList.contains('auto-value')) {
     $socialBase.value = '';
     $socialBase.classList.remove('auto-value');
@@ -1767,7 +1613,6 @@ $socialBase.addEventListener('input', () => {
   saveAndRecalc();
 });
 $socialBase.addEventListener('blur', () => {
-  // 失焦时：如果用户清空了，重置为"自动跟随"状态
   if ($socialBase.value.trim() === '') {
     $socialBase.dataset.user = '';
     saveAndRecalc();
@@ -1793,23 +1638,18 @@ $hfBase.addEventListener('blur', () => {
 $bonusMonth.addEventListener('change', saveAndRecalc);
 $hfRate.addEventListener('change', saveAndRecalc);
 
-// 同步按钮：把公积金基数拉成和社保一致
-//  - 社保已自定义：公积金也填成同样的数（标记为用户输入）
-//  - 社保是"自动跟随"：公积金也回到自动跟随状态
 $syncBase.addEventListener('click', () => {
   if ($socialBase.dataset.user === 'true') {
     $hfBase.value = $socialBase.value;
     $hfBase.dataset.user = 'true';
     $hfBase.classList.remove('auto-value');
   } else {
-    // 社保本身就是自动，公积金也回到自动
     $hfBase.value = '';
     $hfBase.dataset.user = '';
   }
   saveAndRecalc();
 });
 
-// 年终奖快捷按钮：月薪 × N，并记录倍数
 $bonusQuick.addEventListener('click', e => {
   const btn = e.target.closest('button');
   if (!btn) return;
@@ -1821,10 +1661,9 @@ $bonusQuick.addEventListener('click', e => {
   saveAndRecalc();
 });
 
-// 保存当前方案 → 加入对比
 document.getElementById('savePlanBtn').addEventListener('click', () => {
   const plans = loadPlans();
-  if (plans.length >= MAX_PLANS) plans.shift();  // 超出上限，丢弃最早的
+  if (plans.length >= MAX_PLANS) plans.shift();
   plans.push(readInputs());
   storePlans(plans);
   renderCompare();
