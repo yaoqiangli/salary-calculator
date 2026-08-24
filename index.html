@@ -777,11 +777,12 @@
 
 <script>
 // ================= 配置 =================
+// 默认值与上海 2026 年度保持一致（applyCity 初始化时会覆盖）
 const CONFIG = {
-  socialBaseMin: 7460,
-  socialBaseMax: 37302,
-  housingFundBaseMin: 2690,
-  housingFundBaseMax: 37302,
+  socialBaseMin: 7546,
+  socialBaseMax: 37731,
+  housingFundBaseMin: 2740,
+  housingFundBaseMax: 37731,
   taxThresholdMonthly: 5000,
   insurance: [
     { name: '养老保险',   personal: 0.08,  company: 0.16  },
@@ -811,15 +812,47 @@ const CONFIG = {
   ],
 };
 
-// ================= 城市配置（2026年度最新数据） =================
+// ================= 城市配置（2026年度，逐城核对于 2026-08-24） =================
+// · 浙江省社保基数全省统一：4986 – 25299
+// · 江苏省社保基数全省统一：4952 – 24762（暂按2025年度标准执行，待省里公布新标准后多退少补）
+// · 广州/深圳社保基数按医保口径配置（两城各险种基数不同）
+// · 公积金执行期：多数城市 2026.7-2027.6；成都及江苏泰州/连云港/淮安/宿迁为自然年度 2026.1-12
+// · 标注 ⚠️ 的城市：宁波/丽水官方明确"暂按2025年度上限执行"；南通/宿迁2026年度公告未发布
 const CITIES = {
-  sh: { name: '上海', socialMin: 7546, socialMax: 37731, hfMin: 2740, hfMax: 37731 },
-  bj: { name: '北京', socialMin: 7270, socialMax: 36348, hfMin: 2540, hfMax: 36348 },
-  gz: { name: '广州', socialMin: 6234, socialMax: 31170, hfMin: 2500, hfMax: 39828 },
-  sz: { name: '深圳', socialMin: 6727, socialMax: 33633, hfMin: 2360, hfMax: 44265 },
-  hz: { name: '杭州', socialMin: 5346, socialMax: 26730, hfMin: 2490, hfMax: 40694 },
-  cd: { name: '成都', socialMin: 4588, socialMax: 22938, hfMin: 2100, hfMax: 22938 },
-  nj: { name: '南京', socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 41400 },
+  // ---- 直辖市 / 一线城市 ----
+  sh:  { name: '上海',   socialMin: 7546, socialMax: 37731, hfMin: 2740, hfMax: 37731 },
+  bj:  { name: '北京',   socialMin: 7270, socialMax: 36348, hfMin: 2540, hfMax: 36348 },
+  gz:  { name: '广州',   socialMin: 6234, socialMax: 31170, hfMin: 2500, hfMax: 41697 },
+  sz:  { name: '深圳',   socialMin: 6727, socialMax: 33633, hfMin: 2520, hfMax: 48471 },
+  cd:  { name: '成都',   socialMin: 4588, socialMax: 22938, hfMin: 2330, hfMax: 32969 },  // 下限按中心城区口径，县市新城为2200
+
+  // ---- 浙江省（社保全省统一 4986 / 25299） ----
+  hz:  { name: '杭州',   socialMin: 4986, socialMax: 25299, hfMin: 2660, hfMax: 42151 },
+  nb:  { name: '宁波',   socialMin: 4986, socialMax: 25299, hfMin: 2660, hfMax: 38907 },  // ⚠️ 官方暂按2025年度上限执行
+  wz:  { name: '温州',   socialMin: 4986, socialMax: 25299, hfMin: 2660, hfMax: 32964 },
+  jx:  { name: '嘉兴',   socialMin: 4986, socialMax: 25299, hfMin: 2430, hfMax: 34920 },
+  hu:  { name: '湖州',   socialMin: 4986, socialMax: 25299, hfMin: 2430, hfMax: 31436 },
+  sx:  { name: '绍兴',   socialMin: 4986, socialMax: 25299, hfMin: 2430, hfMax: 31968 },
+  jh:  { name: '金华',   socialMin: 4986, socialMax: 25299, hfMin: 2430, hfMax: 31911 },
+  qz:  { name: '衢州',   socialMin: 4986, socialMax: 25299, hfMin: 2180, hfMax: 37530 },
+  zs:  { name: '舟山',   socialMin: 4986, socialMax: 25299, hfMin: 2260, hfMax: 34515 },
+  tai: { name: '台州',   socialMin: 4986, socialMax: 25299, hfMin: 2430, hfMax: 30568 },
+  ls:  { name: '丽水',   socialMin: 4986, socialMax: 25299, hfMin: 2180, hfMax: 36405 },  // ⚠️ 官方暂按2025年度上限执行
+
+  // ---- 江苏省（社保全省统一 4952 / 24762） ----
+  nj:  { name: '南京',   socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 42400 },
+  su:  { name: '苏州',   socialMin: 4952, socialMax: 24762, hfMin: 4952, hfMax: 40600 },  // 下限=社保下限（苏州特例）
+  wx:  { name: '无锡',   socialMin: 4952, socialMax: 24762, hfMin: 2490, hfMax: 36800 },
+  cz:  { name: '常州',   socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 34080 },
+  zj:  { name: '镇江',   socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 32400 },
+  yz:  { name: '扬州',   socialMin: 4952, socialMax: 24762, hfMin: 2490, hfMax: 31618 },
+  tz:  { name: '泰州',   socialMin: 4952, socialMax: 24762, hfMin: 2660, hfMax: 30258 },
+  nt:  { name: '南通',   socialMin: 4952, socialMax: 24762, hfMin: 2490, hfMax: 34000 },  // ⚠️ 2026年度公告未发布，沿用2025年度
+  xz:  { name: '徐州',   socialMin: 4952, socialMax: 24762, hfMin: 2430, hfMax: 32917 },
+  lyg: { name: '连云港', socialMin: 4952, socialMax: 24762, hfMin: 2260, hfMax: 31545 },
+  ha:  { name: '淮安',   socialMin: 4952, socialMax: 24762, hfMin: 2430, hfMax: 30900 },
+  yc:  { name: '盐城',   socialMin: 4952, socialMax: 24762, hfMin: 2260, hfMax: 31314 },
+  sq:  { name: '宿迁',   socialMin: 4952, socialMax: 24762, hfMin: 2430, hfMax: 28500 },  // ⚠️ 2026年度公告未检索到，沿用旧值
 };
 let currentCity = 'sh';
 
@@ -1370,22 +1403,39 @@ function renderCompare() {
     const r = calculate(p);
     const realIncome = round2(r.annualNet + r.ann.housingFundTotal);
     const companyYearCost = round2(r.annualGross + r.companyTotal * 12);
+    // 个人社保全年 = 个人五险一金全年 − 个人公积金全年（五险不含公积金）
+    const socialTotal = round2(r.personalTotal * 12 - r.ann.housingFund);
     return {
       cityName: (CITIES[p.city] || CITIES[keepCity]).name,
       monthly: p.monthly, bonus: p.bonus, hfRate: p.hfRate, mode: p.mode,
       annualNet: r.annualNet, realIncome, companyYearCost,
       personalIns: r.personalTotal * 12, tax: r.annualTax,
+      socialTotal, fundTotal: r.ann.housingFundTotal,
     };
   });
   applyCity(keepCity);
 
+  // 越大越好（到手 / 含公积金年薪）
   const bestIdx = key => {
     let bi = 0;
     computed.forEach((c, i) => { if (c[key] > computed[bi][key]) bi = i; });
     return bi;
   };
-  const bestNet  = bestIdx('annualNet');
-  const bestReal = bestIdx('realIncome');
+  // 越少越好（个税 / 社保）
+  const bestIdxLow = key => {
+    let bi = 0;
+    computed.forEach((c, i) => { if (c[key] < computed[bi][key]) bi = i; });
+    return bi;
+  };
+  // 所有方案数值相同则返回 -1，不高亮
+  const onlyIfDiff = (key, idx) => {
+    const v = computed[idx][key];
+    return computed.every(c => Math.abs(c[key] - v) < 0.01) ? -1 : idx;
+  };
+  const bestNet  = onlyIfDiff('annualNet',    bestIdx('annualNet'));
+  const bestReal = onlyIfDiff('realIncome',   bestIdx('realIncome'));
+  const bestTax  = onlyIfDiff('tax',          bestIdxLow('tax'));
+  const bestSoc  = onlyIfDiff('socialTotal',  bestIdxLow('socialTotal'));
 
   const rows = [
     { label: '城市',         fn: c => c.cityName },
@@ -1393,9 +1443,10 @@ function renderCompare() {
     { label: '年终奖',       fn: c => c.bonus > 0 ? fmt(c.bonus) : '—' },
     { label: '公积金比例',   fn: c => pct(c.hfRate) },
     { label: '计税方式',     fn: c => c.mode === 'separate' ? '单独' : c.mode === 'combined' ? '并入' : '智能' },
-    { label: '到手年薪',     fn: c => fmt(c.annualNet),  best: bestNet,  raw: c => c.annualNet },
-    { label: '含公积金年薪', fn: c => fmt(c.realIncome), best: bestReal, raw: c => c.realIncome },
-    { label: '个税合计',     fn: c => fmt(c.tax) },
+    { label: '到手年薪',     fn: c => fmt(c.annualNet),   best: bestNet,  raw: c => c.annualNet },
+    { label: '含公积金年薪', fn: c => fmt(c.realIncome),  best: bestReal, raw: c => c.realIncome },
+    { label: '全年总个税',   fn: c => fmt(c.tax),         best: bestTax,  raw: c => c.tax,         lowerBetter: true },
+    { label: '个人社保合计', fn: c => fmt(c.socialTotal), best: bestSoc,  raw: c => c.socialTotal, lowerBetter: true },
     { label: '公司总成本',   fn: c => fmt(c.companyYearCost) },
   ];
 
@@ -1407,10 +1458,17 @@ function renderCompare() {
     let leadIdx = -1, leadStr = '';
     if (row.raw && computed.length > 1) {
       const vals = computed.map(row.raw);
-      const sorted = [...vals].slice().sort((a, b) => b - a);
+      const sorted = [...vals].slice().sort((a, b) => row.lowerBetter ? a - b : b - a);
       leadIdx = vals.indexOf(sorted[0]);
-      const lead = round2(sorted[0] - sorted[1]);
-      if (lead > 0) leadStr = `+${fmt(lead)}`;
+      if (row.lowerBetter) {
+        // 最优 = 缴得最少的方案，下方显示比次优"省"多少
+        const lead = round2(sorted[1] - sorted[0]);
+        if (lead > 0) leadStr = `省${fmt(lead)}`;
+      } else {
+        // 最优 = 拿得最多的方案，下方显示比次优"+ 多少"
+        const lead = round2(sorted[0] - sorted[1]);
+        if (lead > 0) leadStr = `+${fmt(lead)}`;
+      }
     }
     return `<tr><th>${row.label}</th>${computed.map((c, i) => {
       const sub = (i === leadIdx && leadStr) ? `<div class="cell-sub">${leadStr}</div>` : '';
